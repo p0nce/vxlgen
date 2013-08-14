@@ -1,7 +1,7 @@
 vxlgen
 ======
 
-A labyrinth map generation tool for Ace of Spades.
+A labyrinth map generation tool for Ace of Spades "Classic" (0.75 and 0.76).
 
 
 [logo]: https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 2"
