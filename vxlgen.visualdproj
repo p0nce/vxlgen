@@ -196,10 +196,12 @@
   <File path="cell.d" />
   <File path="funcs.d" />
   <File path="grid.d" />
+  <File path="LICENSE" />
   <File path="main.d" />
   <File path="pattern.d" />
   <File path="perlin.d" />
   <File path="randutils.d" />
+  <File path="README.md" />
   <File path="room.d" />
   <File path="simplerng.d" />
   <File path="stair.d" />
