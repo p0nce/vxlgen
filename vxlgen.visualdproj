@@ -199,11 +199,11 @@
   <File path="LICENSE" />
   <File path="main.d" />
   <File path="pattern.d" />
-  <File path="perlin.d" />
   <File path="randutils.d" />
   <File path="README.md" />
   <File path="room.d" />
   <File path="simplerng.d" />
+  <File path="simplexnoise.d" />
   <File path="stair.d" />
   <File path="terrain.d" />
   <File path="tower.d" />
