@@ -298,7 +298,7 @@ class Tower : IBlockStructure
             }
 
             // makes everything connex
-            int coloursToEliminate = colorLookup.length - 1;
+            int coloursToEliminate = cast(int)(colorLookup.length) - 1;
 
             // might be infinite loop ! TODO exit
             int firstX = 0;
