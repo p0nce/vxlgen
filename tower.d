@@ -313,9 +313,11 @@ class Tower : IBlockStructure
                         vec3i p = vec3i(cellX, cellY, lvl);
                         Cell* c = &grid.cell(p);
 
+                        bool tryOrder = randBool(rng);
+
                         for (int k = 0; k < 2; ++k)
                         {
-                            bool tryRight = k == 0;
+                            bool tryRight = (k == 0)  ^ tryOrder;
                             vec3i dir;
                             if (tryRight) 
                                 dir = vec3i(1, 0, 0);
