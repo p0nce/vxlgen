@@ -7,7 +7,8 @@ enum CellType
     REGULAR,
     ROOM_FLOOR,
     STAIR_BODY,
-    STAIR_END,
+    STAIR_END_HIGH,
+    STAIR_END_LOW,
     BALCONY
 }
 
@@ -39,7 +40,8 @@ bool shouldBeConnected(CellType ct)
         case CellType.STAIR_BODY: 
             return false;
 
-        case CellType.STAIR_END: 
+        case CellType.STAIR_END_HIGH: 
+        case CellType.STAIR_END_LOW: 
             return true;
     }
 }
@@ -49,8 +51,6 @@ bool availableForRoom(CellType ct)
     switch(ct)
     {
         case CellType.BALCONY:
-            return true;
-
         case CellType.REGULAR: 
             return true;
 
@@ -64,6 +64,19 @@ bool availableForStair(CellType ct)
     switch(ct)
     {
         case CellType.REGULAR: 
+            return true;
+
+        default:
+            return false;
+    }
+}
+
+bool isStairPart(CellType ct)
+{
+    switch(ct)
+    {
+        case CellType.STAIR_BODY: 
+        case CellType.STAIR_END_LOW: 
             return true;
 
         default:

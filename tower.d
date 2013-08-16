@@ -127,12 +127,11 @@ class Tower : IBlockStructure
 
         for (int lvl = 0; lvl < numCells.z; ++lvl)
         {
-            Level level = levels[lvl];
             for (int cellX = 0; cellX < numCells.x; ++cellX)
             {
                 for (int cellY = 0; cellY < numCells.y; ++cellY)
                 {
-                    renderCell(rng, grid, map, vec3i(cellX, cellY, lvl), level);                                     
+                    renderCell(rng, grid, map, vec3i(cellX, cellY, lvl), levels);
                 }
             }
         }
@@ -552,7 +551,7 @@ class Tower : IBlockStructure
                 }
     }
 
-    void renderCell(ref SimpleRng rng, Grid grid, AOSMap map, vec3i cellPos, Level level)
+    void renderCell(ref SimpleRng rng, Grid grid, AOSMap map, vec3i cellPos, Level[] levels)
     {
         vec3i blockPosition = position + cellPos * cellSize;
         int cellX = cellPos.x;
@@ -576,17 +575,17 @@ class Tower : IBlockStructure
             int ymin = 0;
             int ymax = 5;
 
-            vec3f wallColor = grey(level.wallColor, 0.8f);
+            vec3f wallColor = grey(levels[lvl].wallColor, 0.6f);
 
             for (int i = xmin; i < xmax; ++i)
             {
                 for (int j = ymin; j < ymax; ++j)
                 {
-                    vec3f color = patternColor(rng, level.groundPattern, 
+                    vec3f color = patternColor(rng, levels[lvl].groundPattern, 
                                                 i + cellX * 4, 
                                                 j + cellY * 4, 
-                                                level.groundColorLight, 
-                                                level.groundColorDark);
+                                                levels[lvl].groundColorLight, 
+                                                levels[lvl].groundColorDark);
 
                     int wallSize = -1;
                     int lvlBalconyWall = lvl == 0 ? 6 : 1;
@@ -634,6 +633,13 @@ class Tower : IBlockStructure
         // cell ground
         if (cell.hasFloor)
         {
+            vec3f lightColor = levels[lvl].groundColorLight;
+            vec3f darkColor = levels[lvl].groundColorDark;
+            if (isStairPart(cell.type))
+            {
+                lightColor = levels[lvl+1].groundColorLight;
+                darkColor = levels[lvl+1].groundColorDark;
+            }
             for (int i = 0; i < 5; ++i)
                 for (int j = 0; j < 5; ++j)
                 {
@@ -641,11 +647,11 @@ class Tower : IBlockStructure
                     if (randUniform(rng) > 0.999)
                         continue;
 
-                    vec3f color = patternColor(rng, level.groundPattern, 
+                    vec3f color = patternColor(rng, levels[lvl].groundPattern, 
                                                i + cellX * 4, 
                                                j + cellY * 4, 
-                                               level.groundColorLight, 
-                                               level.groundColorDark);
+                                               lightColor, 
+                                               darkColor);
                     map.block(x + i, y + j, z).setf(color);
                 }
         }
@@ -653,11 +659,11 @@ class Tower : IBlockStructure
         if (grid.numConnections(cellX, cellY, lvl) == 0)
         {     
             // no connection, make it full
-            for (int i = 0; i < 5; ++i)
-                for (int j = 0; j < 5; ++j)
+            for (int i = 1; i < 4; ++i)
+                for (int j = 1; j < 4; ++j)
                     for (int k = 1; k < 7; ++k)
-                        map.block(x + i, y + j, z + k).setf(level.wallColor);
-            return;
+                        map.block(x + i, y + j, z + k).setf(levels[lvl].wallColor);
+    //        return;
         }
 
         int wallBase = lvl == 0 ? 0 : 1;
@@ -665,9 +671,18 @@ class Tower : IBlockStructure
 
         if (cell.hasLeftWall)
         {
-            vec3f wallColor = level.wallColor;
-            if (cellX == 1)
-                wallColor = grey(wallColor, 0.8f);
+            vec3f wallColor = levels[lvl].wallColor;
+
+            // walls around a stair are coloured differently
+            vec3i leftCell = cellPos - vec3i(1, 0, 0);
+            if (isStairPart(cell.type) || (grid.contains(leftCell) && isStairPart(grid.cell(leftCell).type)))
+            {
+                wallColor = levels[lvl+1].wallColor;
+            }
+
+
+           if (cellX == 1)
+                wallColor = grey(wallColor, 0.6f);
             for (int j = 0; j < 5; ++j)
                 for (int k = wallBase; k < 7; ++k)
                 {                            
@@ -695,9 +710,17 @@ class Tower : IBlockStructure
 
         if (cell.hasTopWall)
         {
-            vec3f wallColor = level.wallColor;
+            vec3f wallColor = levels[lvl].wallColor;
+
+            // walls around a stair are coloured differently
+            vec3i topCell = cellPos - vec3i(0, 1, 0);
+            if (isStairPart(cell.type) || (grid.contains(topCell) && isStairPart(grid.cell(topCell).type)))
+            {
+                wallColor = levels[lvl+1].wallColor;
+            }
+
             if (cellY == 1)
-                wallColor = grey(wallColor, 0.8f);
+                wallColor = grey(wallColor, 0.6f);
             for (int i = 0; i < 5; ++i)
                 for (int k = wallBase; k < 7; ++k)
                 {                            

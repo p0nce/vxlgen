@@ -77,7 +77,7 @@ class Stair : ICellStructure
 
         a.type = CellType.STAIR_BODY; 
         b.type = CellType.STAIR_BODY;
-        c.type = CellType.STAIR_END;
+        c.type = CellType.STAIR_END_LOW;
 
         // ensure floor
         a.hasFloor = true;
@@ -119,7 +119,7 @@ class Stair : ICellStructure
                 vec3i aboveD = aboveB + direction;
                 if (grid.contains(aboveD))
                 {
-                    grid.cell(aboveD).type = CellType.STAIR_END;
+                    grid.cell(aboveD).type = CellType.STAIR_END_HIGH;
                     grid.connectWith(aboveB, direction);
                     grid.connectWith(aboveB, vec3i(0, 0, -1));
                 }
