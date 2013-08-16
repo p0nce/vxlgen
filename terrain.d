@@ -6,21 +6,21 @@ import std.math;
 import vector;
 import aosmap;
 import randutils;
-import perlin;
+import simplexnoise;
 
 
 void makeTerrain(ref SimpleRng rng, AOSMap map)
 {
     writefln("*** Make terrain...");
-    // make heightmap
+/*    // make heightmap
 
-    Perlin3D[] perlin;
-    perlin.length = 8;
-    for (int oct = 0; oct < 8; ++oct)
+    int NUM_OCT = 8;
+    SimplexNoise[] noises = new SimplexNoise[NUM_OCT];
+    for (int oct = 0; oct < NUM_OCT; ++oct)
     {
-        perlin[oct] = new Perlin3D(rng);
+        noises[oct] = new SimplexNoise(rng);        
     }
-    
+
 
     int[] height;
     vec2i mapDim = vec2i(512, 512);
@@ -35,10 +35,10 @@ void makeTerrain(ref SimpleRng rng, AOSMap map)
             double fx = x / cast(double)mapDim.x;
             double fy = y / cast(double)mapDim.y;
             
-            for (int oct = 0; oct < 8; ++oct)
+            for (int oct = 0; oct < NUM_OCT; ++oct)
             {
                 double freq = 2.0 ^^ oct;
-                double zo = 3 * (perlin[oct].noise(fx * freq, fy * freq, 0.5) - 0.5);
+                double zo = 3 * (noises[oct].noise(fx * freq, fy * freq));
                 double amplitude = 2.0 ^^ (-oct);
                 z += zo * amplitude;
             }
@@ -46,6 +46,8 @@ void makeTerrain(ref SimpleRng rng, AOSMap map)
             int h = cast(int)(0.5 + z);
             if (h < 1) 
                 h = 1;
+            if (h > 62) 
+                h = 62;
             height[y * mapDim.x + x] = h;
         }
     }
@@ -62,8 +64,8 @@ void makeTerrain(ref SimpleRng rng, AOSMap map)
             }            
         }
     }
-
-    /*
+*/
+    
     // ground
     for (int i = 0; i < 512; ++i)
         for (int j = 0; j < 512; ++j)
@@ -89,5 +91,5 @@ void makeTerrain(ref SimpleRng rng, AOSMap map)
                     map.block(i, j, k).setf(color);
                 }
             }
-        }*/
+        }
 }

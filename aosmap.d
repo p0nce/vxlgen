@@ -8,6 +8,7 @@ import block;
 import randutils;
 import box;
 import vector;
+import funcs;
 
 enum GROUND_LEVEL = 1;
 enum WATER_LEVEL = 0;
@@ -31,16 +32,26 @@ public:
         return box3i(0, 0, 0, 512, 512, 62);
     }
 
+    bool contains(vec3i v)
+    {
+        return contains(v.x, v.y, v.z);
+    }
+
+    bool contains(int x, int y, int z)
+    {
+        if (cast(uint)x >= 512)
+            return false;
+        if (cast(uint)y >= 512)
+            return false;
+        if (cast(uint)z >= 64)
+            return false;
+        return true;
+    }
+
     ref Block block(int x, int y, int z)
     {
-        z = 63 - z;
-        if (cast(uint)x >= 512)
-            return _nilBlock;
-        if (cast(uint)y >= 512)
-            return _nilBlock;
-        if (cast(uint)(z - 1) >= 62)
-            return _nilBlock;
-
+        assert(contains(x, y, z));
+        z = 63 - z;       
         int index = z + y * 64 + x * 64 * 512;
         return _blocks[index];
     }
@@ -196,6 +207,66 @@ public:
             for (int y = b.a.y; y < b.b.y; ++y)
                 for (int z = b.a.z; z < b.b.z; ++z)
                     block(x, y, z).empty();
+    }
+
+    void colorBleed()
+    {
+        for (int y=0; y < 512; ++y) 
+        {
+            for (int x=0; x < 512; ++x) 
+            {
+                for (int z = 1; z < 63; ++z)
+                {
+                    Block* fb = &block(x, y, z);
+                    if (fb.isSolid)
+                    {
+                        float count = 0;
+                        float r = 0;
+                        float g = 0;
+                        float b = 0;
+                        void tryBlock(int i, int j, int k, int weight = 1)
+                        {
+                            if (contains(i, j, k))
+                            {
+                                Block bl = block(i, j, k);
+                                if (bl.isSolid)
+                                {
+                                    r += bl.r * weight;
+                                    g += bl.g * weight;
+                                    b += bl.b * weight;
+                                    count += weight;
+                                }
+                            }
+                        }
+                        tryBlock(x, y, z, 20);
+                        // compute luminance
+                        float Y = 0.6f * fb.g + 0.3f * fb.r + 0.1f * fb.b;
+                        tryBlock(x - 1, y, z);
+                        tryBlock(x + 1, y, z);
+                        tryBlock(x, y - 1, z);
+                        tryBlock(x, y + 1, z);
+                        tryBlock(x, y, z - 1);
+                        tryBlock(x, y, z + 1);
+
+                        if (count > 0)
+                        {
+                            float invCount = 1.0f / count;
+                            float beforeR = r * invCount;
+                            float beforeG = g * invCount;
+                            float beforeB = b * invCount;
+                            float Y2 = 0.6f * beforeG + 0.1f * beforeB + 0.3f * beforeR;
+                            float scale = Y / (Y2 + 0.01f);
+                            ubyte finalR = cast(ubyte)(0.5 + clamp!float(beforeR * scale, 0, 255));
+                            ubyte finalG = cast(ubyte)(0.5 + clamp!float(beforeG * scale, 0, 255));
+                            ubyte finalB = cast(ubyte)(0.5 + clamp!float(beforeB * scale, 0, 255));                        
+                            fb.r = finalR;
+                            fb.g = finalG;
+                            fb.b = finalB;
+                        }
+                    }
+                }
+            }
+        }
     }
 
 private:

@@ -76,6 +76,9 @@ void main(string[] argv)
     writefln("*** Generating seed %s...", seed);
     makeTerrain(rng, map);
     makeTower(rng, map);
+    writefln("*** Color bleeding...");
+    map.colorBleed();
+    
     writefln("*** Saving to %s...", outputFile);
     map.writeMap(outputFile);
 }
