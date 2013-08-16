@@ -209,6 +209,49 @@ public:
                     block(x, y, z).empty();
     }
 
+    // try to reverse ugly AO from AoS client
+    void reverseClientAO()
+    {
+        for (int y=0; y < 512; ++y) 
+        {
+            for (int x=0; x < 512; ++x) 
+            {
+                for (int z = 1; z < 63; ++z)
+                {
+                    Block* fb = &block(x, y, z);
+                    if (fb.isSolid)
+                    {
+                        // compute AO length
+                        vec3i AOdirection = vec3i(0, -1, 1);
+                        int obstruction = 0;
+                        for (int i = 1; i <= 9; ++i)
+                        {
+                            vec3i p = vec3i(x, y, z) + AOdirection * i;
+                            if (contains(p) && block(p).isSolid)
+                                obstruction++;          
+                        }
+                        float fact = 1.0f - 0.5f * obstruction / 9.0f;
+                        float invFact = 1.0f / fact;
+                        ubyte newR = cast(ubyte)(0.5f + clamp(fb.r * invFact, 0.0f, 255.0f));
+                        ubyte newG = cast(ubyte)(0.5f + clamp(fb.g * invFact, 0.0f, 255.0f));
+                        ubyte newB = cast(ubyte)(0.5f + clamp(fb.b * invFact, 0.0f, 255.0f));
+                        
+/*
+                        float add = -10.0f * obstruction;
+                        //float invFact = 1.0f / fact;
+                        ubyte newR = cast(ubyte)(0.5f + clamp(fb.r - add, 0.0f, 255.0f));
+                        ubyte newG = cast(ubyte)(0.5f + clamp(fb.g - add, 0.0f, 255.0f));
+                        ubyte newB = cast(ubyte)(0.5f + clamp(fb.b - add, 0.0f, 255.0f));
+                        */
+fb.r = newR;
+                        fb.g = newG;
+                        fb.b = newB;
+                    }
+                }
+            }
+        }
+    }
+
     void colorBleed()
     {
         for (int y=0; y < 512; ++y) 

@@ -78,7 +78,10 @@ void main(string[] argv)
     makeTower(rng, map);
     writefln("*** Color bleeding...");
     map.colorBleed();
-    
+
+    writefln("*** Reverse client Ambient Occlusion...");
+    map.reverseClientAO();
+
     writefln("*** Saving to %s...", outputFile);
     map.writeMap(outputFile);
 }
