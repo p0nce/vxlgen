@@ -344,7 +344,7 @@ fb.r = newR;
                                 }
 
                         float occluded = clamp(occlusion / 18.0f, 0.0f, 1.0f);
-                        float scale = 1.8f - occluded * 1.6f;
+                        float scale = 1.4f - occluded * 0.8f;
                         ubyte finalR = cast(ubyte)(0.5 + clamp!float(fb.r * scale, 0, 255));
                         ubyte finalG = cast(ubyte)(0.5 + clamp!float(fb.g * scale, 0, 255));
                         ubyte finalB = cast(ubyte)(0.5 + clamp!float(fb.b * scale, 0, 255));     
