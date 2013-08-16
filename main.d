@@ -79,6 +79,9 @@ void main(string[] argv)
     writefln("*** Color bleeding...");
     map.colorBleed();
 
+    writefln("*** Compute omnidirectional Ambient Occlusion...");
+    map.betterAO();
+
     writefln("*** Reverse client Ambient Occlusion...");
     map.reverseClientAO();
 

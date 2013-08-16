@@ -312,6 +312,51 @@ fb.r = newR;
         }
     }
 
+    void betterAO()
+    {
+        for (int y=0; y < 512; ++y) 
+        {
+            for (int x=0; x < 512; ++x) 
+            {
+                for (int z = 1; z < 63; ++z)
+                {
+                    Block* fb = &block(x, y, z);
+                    if (fb.isSolid)
+                    {
+                        int occlusion = 0;
+                        void tryBlock(int i, int j, int k) // return true if not occluding
+                        {
+                            if (contains(i, j, k))
+                            {
+                                Block bl = block(i, j, k);
+                                if (bl.isSolid)
+                                {
+                                    occlusion++;
+                                }
+                            }
+                        }
+
+                        for (int i = -1; i <= 1; ++i)
+                            for (int j = -1; j <= 1; ++j)
+                                for (int k = 0; k <= 1; ++k)
+                                {
+                                    tryBlock(x + j, y + i, z + k);
+                                }
+
+                        float occluded = clamp(occlusion / 18.0f, 0.0f, 1.0f);
+                        float scale = 1.8f - occluded * 1.6f;
+                        ubyte finalR = cast(ubyte)(0.5 + clamp!float(fb.r * scale, 0, 255));
+                        ubyte finalG = cast(ubyte)(0.5 + clamp!float(fb.g * scale, 0, 255));
+                        ubyte finalB = cast(ubyte)(0.5 + clamp!float(fb.b * scale, 0, 255));     
+                        fb.r = finalR;
+                        fb.g = finalG;
+                        fb.b = finalB;
+                    }
+                }
+            }
+        }
+    }
+
 private:
     Block[] _blocks;
 
