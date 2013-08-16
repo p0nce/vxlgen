@@ -567,68 +567,6 @@ class Tower : IBlockStructure
         bool isBalconyRight = isBalcony && ( (cellX + 1 == numCells.x) || grid.cell(cellPos + vec3i(1, 0, 0)).type == CellType.AIR);
         bool isBalconyTop = isBalcony && ( (cellY == 0) || grid.cell(cellPos + vec3i(0, -1, 0)).type == CellType.AIR);
         bool isBalconyBottom = isBalcony && ( (cellY + 1 == numCells.y) || grid.cell(cellPos + vec3i(0, 1, 0)).type == CellType.AIR);
-        
-        if (isBalcony)
-        {
-            int xmin = 0;
-            int xmax = 5;
-            int ymin = 0;
-            int ymax = 5;
-
-            vec3f wallColor = grey(levels[lvl].wallColor, 0.6f);
-
-            for (int i = xmin; i < xmax; ++i)
-            {
-                for (int j = ymin; j < ymax; ++j)
-                {
-                    vec3f color = patternColor(rng, levels[lvl].groundPattern, 
-                                                i + cellX * 4, 
-                                                j + cellY * 4, 
-                                                levels[lvl].groundColorLight, 
-                                                levels[lvl].groundColorDark);
-
-                    int wallSize = -1;
-                    int lvlBalconyWall = lvl == 0 ? 6 : 1;
-                    if (cell.hasFloor)
-                    {
-                        map.block(x + i, y + j, z).setf(color);
-
-                        if (i == xmin && isBalconyLeft)
-                            wallSize = lvlBalconyWall;
-                        if (j == ymin && isBalconyTop)
-                            wallSize = lvlBalconyWall;
-                        if (i + 1 == xmax && isBalconyRight)
-                            wallSize = lvlBalconyWall;
-                        if (j + 1 == ymax && isBalconyBottom)
-                            wallSize = lvlBalconyWall;
-                    }
-
-                    if (lvl <= 1)
-                        wallSize = 6;
-                        
-                    if (i == 0 && cell.hasLeftWall)
-                        wallSize = 6;
-                    if (j == 0 && cell.hasTopWall)
-                        wallSize = 6;
-
-                    vec3f black = vec3f(0,0,0);
-                    for (int k = 0; k <= wallSize; ++k)
-                    {
-                        map.block(x + i, y + j, z + k).setf(wallColor);
-                    }
-                }
-            }
-
-            if (grid.numConnections(cellX, cellY, lvl) == 0)
-            {     
-                // no connection, make it full
-                for (int i = xmin; i < xmax; ++i)
-                    for (int j = ymin; j < ymax; ++j)
-                        for (int k = 1; k < 7; ++k)
-                            map.block(x + i, y + j, z + k).setf(wallColor);
-            }
-            return;
-        }
 
         // cell ground
         if (cell.hasFloor)
@@ -663,7 +601,6 @@ class Tower : IBlockStructure
                 for (int j = 1; j < 4; ++j)
                     for (int k = 1; k < 7; ++k)
                         map.block(x + i, y + j, z + k).setf(levels[lvl].wallColor);
-    //        return;
         }
 
         int wallBase = lvl == 0 ? 0 : 1;
@@ -745,6 +682,56 @@ class Tower : IBlockStructure
                 map.block(x + 3, y, z + 3).empty();
             }
         } 
+
+        if (isBalcony)
+        {
+            vec3f balconyColor = grey(levels[lvl].wallColor, 0.6f);
+
+            for (int i = 0; i < 5; ++i)
+            {
+                for (int j = 0; j < 5; ++j)
+                {
+                    int wallSize = -1;
+                    int lvlBalconyWall = lvl == 0 ? 6 : 1;
+                    if (cell.hasFloor)
+                    {
+                        if (i == 0 && isBalconyLeft)
+                            wallSize = lvlBalconyWall;
+                        if (j == 0 && isBalconyTop)
+                            wallSize = lvlBalconyWall;
+                        if (i + 1 == 5 && isBalconyRight)
+                            wallSize = lvlBalconyWall;
+                        if (j + 1 == 5 && isBalconyBottom)
+                            wallSize = lvlBalconyWall;
+                    }
+
+                    if (lvl <= 1)
+                        wallSize = 6;
+
+                    if (i == 0 && cell.hasLeftWall)
+                        wallSize = 6;
+                    if (j == 0 && cell.hasTopWall)
+                        wallSize = 6;
+
+                    for (int k = 0; k <= wallSize; ++k)
+                    {
+                        map.block(x + i, y + j, z + k).setf(balconyColor);
+                    }
+                }
+            }       
+
+            if (lvl % 2 == 0)
+            {
+                if (grid.numConnections(cellX, cellY, lvl) == 0)
+                {     
+                    // no connection, make it full
+                    for (int i = 0; i < 5; ++i)
+                        for (int j = 0; j < 5; ++j)
+                            for (int k = 1; k < 6; ++k)
+                                map.block(x + i, y + j, z + k).setf(balconyColor);
+                }
+            }
+        }
     }
 }
 
