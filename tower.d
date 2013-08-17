@@ -742,14 +742,10 @@ class Tower : IBlockStructure
 void makeTower(ref SimpleRng rng, AOSMap map)
 {
     writefln("*** Build tower...");
-
-
     vec3i towerPos = vec3i(128 + 64, 128 + 64, 1);
-    vec3i numCells = vec3i(63 - 32, 63 - 32, 10);
-  
+    vec3i numCells = vec3i(63 - 32, 63 - 32, 10);  
     auto tower = new Tower(towerPos, numCells);
     tower.buildBlocks(rng, map);
-
 }
 
 
