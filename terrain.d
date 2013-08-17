@@ -49,6 +49,7 @@ public:
                 {
                     double dist = cast(double)(x * x + y * y);
                     if (dist < maxRadius * maxRadius)
+                    if (map.contains(vec3i(pos.x + x, pos.y + y, pos.z + i)))
                     {
                         Block* bl = &map.block(pos.x + x, pos.y + y, pos.z + i);
                         bl.r *= 0.7f;
@@ -237,7 +238,9 @@ public:
                         for (int i = -4; i < 5; ++i)
                             for (int j = -4; j < 5; ++j)
                             {
-                                vegetation[((y + j) % mapDim.y) * mapDim.x + (x + i) % mapDim.x] = 0;
+                                int ix = (y + j + mapDim.y) % mapDim.y;
+                                int iy = (x + i + mapDim.x) % mapDim.x;
+                                vegetation[iy * mapDim.x + ix] = 0;
                             }
                     }
                 }
