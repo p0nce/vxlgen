@@ -76,11 +76,16 @@ void makeTerrain(ref SimpleRng rng, AOSMap map)
         for (int x = 0; x < mapDim.x; ++x)
         {       
             int h = height[y * mapDim.x + x];
-            for (int k = 1; k <= h; ++k)
+            for (int k = 0; k <= h; ++k)
             {
                 vec3f color = void;
 
-                if (k == 1)
+                // water color
+                if (k == 0)
+                {
+                    color = vec3f(90 / 255.0f, 148 / 255.0f, 237 / 255.0f);
+                }
+                else if (k == 1)
                 {
                     color = vec3f(0.9, 0.9, 0.9);
                     color += randomPerturbation(rng) * 0.015f;
@@ -119,7 +124,6 @@ void makeTerrain(ref SimpleRng rng, AOSMap map)
                     color = vec3f(1,1,1);
                     color += randomPerturbation(rng) * 0.01f;
                 }
-
                 map.block(x, y, k).setf(color);
             }            
         }
