@@ -67,7 +67,7 @@ public:
         std.file.write(filename, buf);
     }
 
-    enum MAP_Z = 63;
+    enum MAP_Z = 64;
 
     ubyte[] getBytes()
     {
