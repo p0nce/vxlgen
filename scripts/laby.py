@@ -105,14 +105,25 @@ def apply_script(protocol, connection, config):
             return connection.on_flag_take(self)
         
         def on_flag_drop(self):
-            flag = self.team.flag
+
+            # move both intel
             position = self.world_object.position
             x = int(position.x)
             y = int(position.y)
-            z = int(position.z)
-            z = max(0, int(position.z))
+            z =  max(0, int(position.z))
+
+            # find  floor
+            while z < 63 and not self.protocol.map.get_solid(x, y, z):
+                z = z + 1
+
+            flag = self.team.flag
             flag.set(x, y, z)
             flag.update()
+
+            other_flag = self.team.other.flag
+            other_flag.set(x, y, z)
+            other_flag.update()
+
             return connection.on_flag_drop(self)
 
         def on_flag_capture(self):
