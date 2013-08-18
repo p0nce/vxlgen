@@ -6,13 +6,9 @@ A labyrinth map generation tool for Ace of Spades "Classic" (0.75 and 0.76).
 
 [logo]: https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 2"
 
-![](http://i.imgur.com/zicYgK7.jpg)
-![](http://i.imgur.com/JLYG5Gz.jpg)
-![](http://i.imgur.com/ptbgMHE.png)
+Updates and pictures are posted in this thread: http://buildandshoot.com/viewtopic.php?f=35&t=5239
 
-Updates are posted in this thread: http://buildandshoot.com/viewtopic.php?f=35&t=5239
-
-The generated map work with a server mod "laby.py" which is still in the works.
+The generated map work with the server mod "laby.py" which is still buggy.
 
 Also it needs a map generation hook to be generated on the fly.
 
