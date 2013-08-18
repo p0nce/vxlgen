@@ -98,7 +98,8 @@ class Tower : IBlockStructure
 
                     cell.hasLeftWall = randUniform(rng) < 0.5;
                     cell.hasTopWall = randUniform(rng) < 0.5;
-                    cell.hasFloor = randUniform(rng)  < 0.95;
+                    float floorThreshold = k == 0 ? 0.9f : 0.95f;
+                    cell.hasFloor = randUniform(rng) < floorThreshold;
                 }        
         
         buildExternalCells(grid);
@@ -112,6 +113,19 @@ class Tower : IBlockStructure
         removeUninterestingPatterns(rng, grid);
         
         writefln(" - Render cells...");
+
+        // red water
+        {
+            vec3i d = numCells * cellSize + 1;
+            vec3f red = vec3f(100, 0, 0) / 255.0f;
+            for (int y = 0; y < d.y; ++y)
+            {
+                for (int x = 0; x < d.x; ++x)
+                {  
+                    map.block(position.x + x, position.y + y, 0).setf(red);
+                }
+            }
+        }
 
         for (int lvl = 0; lvl < numCells.z; ++lvl)
         {

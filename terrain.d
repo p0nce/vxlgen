@@ -224,10 +224,10 @@ public:
                         trunkColor += randomPerturbation(rng) * 0.02;
                         foliageColor += randomPerturbation(rng) * 0.04;
 
-                        if (h > 48)
+                        if (h > 40)
                         {
                             vec3f white = vec3f(1,1,1);
-                            float t = clamp((h - 48.0f) / (48.0f - 32.0f), 0.0f, 1.0f);
+                            float t = clamp((h - 40.0f) / (48.0f - 32.0f), 0.0f, 1.0f);
                             trunkColor = mix(trunkColor, white, t);
                             foliageColor = mix(foliageColor, white, t);
                         }
