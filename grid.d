@@ -12,7 +12,7 @@ interface ICellStructure
     void buildCells(ref SimpleRng rng, Grid grid);
 
     vec3i getCellPosition();
-    void buildBlocks(ref SimpleRng rng, vec3i base, AOSMap map);
+    void buildBlocks(ref SimpleRng rng, Grid grid, vec3i base, AOSMap map);
 }
 
 // grid of cells

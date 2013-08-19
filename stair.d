@@ -30,7 +30,7 @@ class Stair : ICellStructure
         return start;
     }
 
-    void buildBlocks(ref SimpleRng rng, vec3i base, AOSMap map)
+    void buildBlocks(ref SimpleRng rng, Grid grid, vec3i base, AOSMap map)
     {
         vec3i centerA = base + vec3i(2, 2, 0) + 0 * direction;
         vec3i centerB = base + vec3i(2, 2, 0) + 4 * direction;

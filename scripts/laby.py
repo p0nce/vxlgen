@@ -22,17 +22,17 @@ from pyspades.common import Vertex3
 import random
 import commands
 
-BLUE_BASE_COORDS = (256 - 74, 254.5)
-GREEN_BASE_COORDS = (256 + 74, 254.5)
+BLUE_BASE_COORDS = (256 - 57, 254.5)
+GREEN_BASE_COORDS = (256 + 54, 254.5)
 SPAWN_SIZE = 7
 FLAG_SPAWN_POS = (256, 256)
 HIDE_POS = (0, 0, 63)
 
 def get_entity_location(self, entity_id):
     if entity_id == BLUE_BASE:
-        return BLUE_BASE_COORDS + (self.protocol.map.get_z(*BLUE_BASE_COORDS),)
+        return BLUE_BASE_COORDS + (63 - 7,)
     elif entity_id == GREEN_BASE:
-        return GREEN_BASE_COORDS + (self.protocol.map.get_z(*GREEN_BASE_COORDS),)
+        return GREEN_BASE_COORDS + (63 - 7,)
     elif entity_id == BLUE_FLAG:
         return (256 - 2 + 1, 256, 0)
     elif entity_id == GREEN_FLAG:
@@ -43,7 +43,7 @@ def get_spawn_location(connection):
     yb = connection.team.base.y
     xb += randint(-SPAWN_SIZE, SPAWN_SIZE)
     yb += randint(-SPAWN_SIZE, SPAWN_SIZE)
-    return (xb, yb, connection.protocol.map.get_z(xb, yb))
+    return (xb, yb, 63-7)
 
 def z_to_floor(z):
     lvl = int((63-z)/6)
@@ -166,14 +166,10 @@ def apply_script(protocol, connection, config):
             return protocol.on_game_end(self)
 
         def on_map_change(self, map):
-            extensions = self.map_info.extensions
             self.map_info.cap_limit = 1
             self.map_info.get_entity_location = get_entity_location
             self.map_info.get_spawn_location = get_spawn_location
             self.one_ctf_spawn_pos = intel_spawn_location(self)
-            extensions = self.map_info.extensions
-#            if extensions.has_key('one_ctf'):
-#                self.one_ctf = extensions['one_ctf']
             return protocol.on_map_change(self, map)
 
         def on_flag_spawn(self, x, y, z, flag, entity_id):

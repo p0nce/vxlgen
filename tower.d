@@ -156,7 +156,7 @@ class Tower : IBlockStructure
         {
             vec3i cellPos = s.getCellPosition();
             vec3i sposition = position + cellPos * cellSize;
-            s.buildBlocks(rng, sposition, map);
+            s.buildBlocks(rng, grid, sposition, map);
         }
         
         writefln(" - Build block structures...");
@@ -426,7 +426,7 @@ class Tower : IBlockStructure
         }
     }
 
-    Room[]  addRooms(ref SimpleRng rng, Grid grid)
+    Room[] addRooms(ref SimpleRng rng, Grid grid)
     {      
         Room[] rooms;
         double roomProportion = 0.09;
@@ -437,7 +437,7 @@ class Tower : IBlockStructure
         {
             if (grid.canBuildRoom(bb))
             {
-                Room room = new Room(bb, isEntrance);
+                Room room = new Room(bb, isEntrance, cellSize);
                 room.buildCells(rng, grid);
                 rooms ~= room;
 
@@ -449,16 +449,12 @@ class Tower : IBlockStructure
         // build 4 entrances
         if (numCells.x > 7 && numCells.y > 7 && numCells.z > 3)
         {
-            vec3i entranceSize = vec3i(3, 3, 3);
+            vec3i entranceSize = vec3i(4, 5, 3);
             vec3i middle = (vec3i(31, 31, 0) - entranceSize) / 2;
 
-            vec3i north = vec3i(middle.x, 0, 1);
-            vec3i south = vec3i(middle.x, numCells.y - entranceSize.y, 1);
             vec3i east = vec3i(numCells.x - entranceSize.x, middle.y, 1);
             vec3i west = vec3i(0, middle.y, 1);
 
-            tryRoom(box3i(north, north + entranceSize), true);
-            tryRoom(box3i(south, south + entranceSize), true);
             tryRoom(box3i(east, east + entranceSize), true);
             tryRoom(box3i(west, west + entranceSize), true);
         }
@@ -468,7 +464,7 @@ class Tower : IBlockStructure
         {
             int maxWidth = numCells.x > 7 ? 7 : numCells.x;
             int maxDepth = numCells.y > 7 ? 7 : numCells.y;
-            int maxHeight = numCells.z > 7 ? 7 : numCells.z;
+            int maxHeight = numCells.z > 10 ? 10 : numCells.z;
 
             int roomWidth = dice(rng, 3, maxWidth);
             int roomDepth = dice(rng, 3, maxDepth);

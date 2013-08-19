@@ -13,11 +13,13 @@ class Room : ICellStructure
 {   
     box3i pos;
     bool isEntrance;
+    vec3i cellSize;
 
-    this(box3i p, bool isEntrance)
+    this(box3i p, bool isEntrance, vec3i cellSize)
     {
         pos = p;
         this.isEntrance = isEntrance;
+        this.cellSize = cellSize;
     }
 
     vec3i getCellPosition()
@@ -71,9 +73,32 @@ class Room : ICellStructure
                     }
     }
 
-    void buildBlocks(ref SimpleRng rng, vec3i base, AOSMap map)
+    void buildBlocks(ref SimpleRng rng, Grid grid, vec3i base, AOSMap map)
     {
-        // todo add objects to room
+        // red carpet for entrance
+        /+if (isEntrance)
+        {
+            vec3f redCarpet = vec3f(1, 0, 0);
+            for (int x = 0; x < pos.width(); ++x)
+                for (int y = 0; y < pos.height(); ++y)
+                {
+                    int z = 0;
+                    vec3i cellPos = pos.a + vec3i(x, y, z);
+                    
+                    Cell* cell = &grid.cell(cellPos);
+                    if (cell.type == CellType.ROOM_FLOOR)
+                    {
+                        for (int j = 0; j < cellSize.y; ++j)
+                        {
+                            for (int i = 0; i < cellSize.x; ++i)
+                            {
+                                map.block(vec3i(i, j, 0) + cellPos * cellSize).setf(redCarpet);
+                            }
+                        }
+                    }                    
+                }
 
+        }
+        +/
     }
 }
