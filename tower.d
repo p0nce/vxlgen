@@ -57,6 +57,8 @@ class Tower : IBlockStructure
     vec3i cellSize;
     vec3i dimension;
     int entranceRoomSize;
+    box3i blueEntrance;
+    box3i greenEntrance;
 
     this(vec3i position, vec3i numCells)
     {
@@ -450,13 +452,16 @@ class Tower : IBlockStructure
         if (numCells.x > 7 && numCells.y > 7 && numCells.z > 3)
         {
             vec3i entranceSize = vec3i(4, 5, 3);
-            vec3i middle = (vec3i(31, 31, 0) - entranceSize) / 2;
+            vec3i middle = (vec3i(numCells.x, numCells.y, 0) - entranceSize) / 2;
 
             vec3i east = vec3i(numCells.x - entranceSize.x, middle.y, 1);
             vec3i west = vec3i(0, middle.y, 1);
 
-            tryRoom(box3i(east, east + entranceSize), true);
-            tryRoom(box3i(west, west + entranceSize), true);
+            blueEntrance = box3i(west, west + entranceSize);
+            greenEntrance = box3i(east, east + entranceSize);
+
+            tryRoom(greenEntrance, true);
+            tryRoom(blueEntrance, true);
         }
 
 
@@ -745,17 +750,6 @@ class Tower : IBlockStructure
             }
         }
     }
-}
-
-
-
-void makeTower(ref SimpleRng rng, AOSMap map)
-{
-    writefln("*** Build tower...");
-    vec3i towerPos = vec3i(128 + 64, 128 + 64, 1);
-    vec3i numCells = vec3i(63 - 32, 63 - 32, 10);  
-    auto tower = new Tower(towerPos, numCells);
-    tower.buildBlocks(rng, map);
 }
 
 

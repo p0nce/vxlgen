@@ -25,14 +25,14 @@ import commands
 BLUE_BASE_COORDS = (256 - 57, 254.5)
 GREEN_BASE_COORDS = (256 + 54, 254.5)
 SPAWN_SIZE = 7
-FLAG_SPAWN_POS = (256, 256)
 HIDE_POS = (0, 0, 63)
 
 def get_entity_location(self, entity_id):
+
     if entity_id == BLUE_BASE:
-        return BLUE_BASE_COORDS + (63 - 7,)
+        return self.protocol.blue_base_coord
     elif entity_id == GREEN_BASE:
-        return GREEN_BASE_COORDS + (63 - 7,)
+        return self.protocol.green_base_coord
     elif entity_id == BLUE_FLAG:
         return (256 - 2 + 1, 256, 0)
     elif entity_id == GREEN_FLAG:
@@ -43,19 +43,10 @@ def get_spawn_location(connection):
     yb = connection.team.base.y
     xb += randint(-SPAWN_SIZE, SPAWN_SIZE)
     yb += randint(-SPAWN_SIZE, SPAWN_SIZE)
-    return (xb, yb, 63-7)
-
-def z_to_floor(z):
-    lvl = int((63-z)/6)
-    return level_to_floor(lvl)
-
-def level_to_floor(lvl):
-    if lvl == 10:
-        return "on the roof"
-    elif lvl == 1:
-        return "at ground floor" 
-    else:
-        return "at floor " + str(lvl-1)
+    zb = 63 - 7
+    while connection.protocol.map.get_solid(xb, yb, zb-1):
+        (xb, yb) = (xb + randint(-1, 2), yb + randint(-1, 2))
+    return (xb, yb, zb)
 
 
 def intel_spawn_location(self):
@@ -64,8 +55,8 @@ def intel_spawn_location(self):
         AREA = 24 
         x = randint(255 - AREA, 255 + AREA)
         y = randint(255 - AREA, 255 + AREA)
-        lvl = randint(0, 10)
-        z = 3 +  6 * lvl
+        lvl = randint(0, self.num_floors)
+        z = 3 +  self.cell_size[2] * lvl
         z = 63 - z
         loop = loop + 1
         if (loop < 1000): # detect infinite loop (never happened yet)
@@ -86,7 +77,7 @@ def intel_spawn_location(self):
             if self.map.get_solid(x+1, y+1, z-1):
                 continue
 
-        self.send_chat("The intel spawned " + level_to_floor(lvl) + ".")
+        self.send_chat("The intel spawned " + self.level_to_floor(lvl) + ".")
         return (x, y, z)
 
 
@@ -166,6 +157,13 @@ def apply_script(protocol, connection, config):
             return protocol.on_game_end(self)
 
         def on_map_change(self, map):
+            extensions = self.map_info.extensions
+            self.tower_position = extensions['tower_position']
+            self.tower_cells = extensions['tower_cells']
+            self.cell_size = extensions['cell_size']
+            self.blue_base_coord = extensions['blue_base_coord']
+            self.green_base_coord = extensions['green_base_coord']
+            self.num_floors = self.cell_size[2]
             self.map_info.cap_limit = 1
             self.map_info.get_entity_location = get_entity_location
             self.map_info.get_spawn_location = get_spawn_location
@@ -192,11 +190,24 @@ def apply_script(protocol, connection, config):
                         player.send_chat(floor(player))
             protocol.on_world_update(self)
 
+        def z_to_floor(self, z):
+            lvl = int((63-z)/self.cell_size[2])
+            return level_to_floor(lvl)
+
+        def level_to_floor(self, lvl):
+            if lvl >= self.num_floors:
+                return "on the roof"
+            elif lvl == 1:
+                return "at ground floor" 
+            else:
+                return "at floor " + str(lvl-1)
+
     return LabyrinthProtocol, LabyrinthConnection
 
 @commands.alias('floor')
 def floor(connection):
-    if connection not in connection.protocol.players:
+    protocol = connection.protocol
+    if connection not in protocol.players:
         raise KeyError()
     if connection is None:
         return ""
@@ -205,8 +216,8 @@ def floor(connection):
         return ""
     pz = player.get_location()[2]
 
-    blue_flag = connection.protocol.blue_team.flag
-    green_flag = connection.protocol.green_team.flag
+    blue_flag = protocol.blue_team.flag
+    green_flag = protocol.green_team.flag
     ibfpos = (blue_flag.x, blue_flag.y, blue_flag.z)
     igfpos = (green_flag.x, green_flag.y, green_flag.z)
     pos = ibfpos
@@ -219,6 +230,6 @@ def floor(connection):
         pos = green_flag.player.get_location()
 
     iz = pos[2]
-    return "You are " + z_to_floor(pz) + ", the intel is " + z_to_floor(iz) + "."
+    return "You are " + protocol.z_to_floor(pz) + ", the intel is " + protocol.z_to_floor(iz) + "."
 add(floor)
 

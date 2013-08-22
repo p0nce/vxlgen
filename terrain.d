@@ -329,9 +329,3 @@ public:
     }
 }
 
-void makeTerrain(ref SimpleRng rng, AOSMap map)
-{
-    writefln("*** Generate terrain...");
-    auto terrain = new Terrain(vec2i(512, 512), rng);
-    terrain.buildBlocks(rng, map);
-}
