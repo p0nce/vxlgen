@@ -22,8 +22,6 @@ from pyspades.common import Vertex3
 import random
 import commands
 
-BLUE_BASE_COORDS = (256 - 57, 254.5)
-GREEN_BASE_COORDS = (256 + 54, 254.5)
 SPAWN_SIZE = 7
 HIDE_POS = (0, 0, 63)
 
@@ -45,16 +43,16 @@ def get_spawn_location(connection):
     yb += randint(-SPAWN_SIZE, SPAWN_SIZE)
     zb = 63 - 7
     while connection.protocol.map.get_solid(xb, yb, zb-1):
-        (xb, yb) = (xb + randint(-1, 2), yb + randint(-1, 2))
+        (xb, yb) = (xb + randint(-1, 1), yb + randint(-1, 1))
     return (xb, yb, zb)
 
 
 def intel_spawn_location(self):
     loop = 0
     while True:
-        AREA = 24 
-        x = randint(255 - AREA, 255 + AREA)
-        y = randint(255 - AREA, 255 + AREA)
+        AREA = 20 
+        x = randint(254 - AREA, 254 + AREA)
+        y = randint(254 - AREA, 254 + AREA)
         lvl = randint(0, self.num_floors)
         z = 3 +  self.cell_size[2] * lvl
         z = 63 - z
@@ -77,6 +75,10 @@ def intel_spawn_location(self):
             if self.map.get_solid(x+1, y+1, z-1):
                 continue
 
+        # find  floor
+        while z < 63 and not self.map.get_solid(x, y, z):
+            z = z + 1
+            
         self.send_chat("The intel spawned " + self.level_to_floor(lvl) + ".")
         return (x, y, z)
 
@@ -163,7 +165,7 @@ def apply_script(protocol, connection, config):
             self.cell_size = extensions['cell_size']
             self.blue_base_coord = extensions['blue_base_coord']
             self.green_base_coord = extensions['green_base_coord']
-            self.num_floors = self.cell_size[2]
+            self.num_floors = self.tower_cells[2]
             self.map_info.cap_limit = 1
             self.map_info.get_entity_location = get_entity_location
             self.map_info.get_spawn_location = get_spawn_location
@@ -192,7 +194,7 @@ def apply_script(protocol, connection, config):
 
         def z_to_floor(self, z):
             lvl = int((63-z)/self.cell_size[2])
-            return level_to_floor(lvl)
+            return self.level_to_floor(lvl)
 
         def level_to_floor(self, lvl):
             if lvl >= self.num_floors:
