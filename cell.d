@@ -6,11 +6,17 @@ enum CellType
     AIR,
     REGULAR,
     ROOM_FLOOR,
-    ROOF,
+    FULL,
     STAIR_BODY,
     STAIR_END_HIGH,
-    STAIR_END_LOW,
-    BALCONY
+    STAIR_END_LOW
+}
+
+enum BalconyType
+{
+    NONE,
+    SIMPLE,
+    BATTLEMENT 
 }
 
 struct Cell
@@ -19,6 +25,7 @@ struct Cell
     bool hasTopWall; // is connected to Y-1    
     bool hasFloor; // is connected to Z-1
     CellType type;
+    BalconyType balcony;
     int color;
 }
 
@@ -29,9 +36,6 @@ bool shouldBeConnected(CellType ct)
         case CellType.AIR: 
             return false;
 
-        case CellType.BALCONY:
-            return true;
-
         case CellType.REGULAR: 
             return true;
 
@@ -39,8 +43,8 @@ bool shouldBeConnected(CellType ct)
             return true;
 
         case CellType.STAIR_BODY: 
-        case CellType.ROOF:
-            return false;
+        case CellType.FULL: 
+           return false;
 
         case CellType.STAIR_END_HIGH: 
         case CellType.STAIR_END_LOW:         
@@ -52,8 +56,8 @@ bool availableForRoom(CellType ct)
 {
     switch(ct)
     {
-        case CellType.BALCONY:
         case CellType.REGULAR: 
+        case CellType.FULL: 
             return true;
 
         default:
@@ -66,6 +70,7 @@ bool availableForStair(CellType ct)
     switch(ct)
     {
         case CellType.REGULAR: 
+        case CellType.FULL: 
             return true;
 
         default:

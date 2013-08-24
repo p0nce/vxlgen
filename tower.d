@@ -43,14 +43,21 @@ public:
         }
 
         if (isRoof)
+        {
             groundPattern = PatternEx(Pattern.ONLY_ONE, false, false, 0.003f);
+            balcony = BalconyType.BATTLEMENT;
+        }
         else
+        {
             groundPattern = PatternEx(cast(Pattern)dice(rng, Pattern.min, Pattern.max + 1), randBool(rng), randBool(rng), 0.008f);
+            balcony = BalconyType.SIMPLE;
+        }
     }
     vec3f groundColorLight;
     vec3f groundColorDark;
     vec3f wallColor;
     PatternEx groundPattern;
+    BalconyType balcony;
 }
 
 final class Tower : IBlockStructure
@@ -116,7 +123,7 @@ final class Tower : IBlockStructure
                     cell.hasFloor = randUniform(rng) < floorThreshold;
                 }        
         
-        buildExternalCells(grid);
+        buildExternalCells(grid, levels);
 
         Room[] rooms = addRooms(rng, grid);
         Stair[] stairs = addStairs(rng, grid, levels);
@@ -184,7 +191,7 @@ final class Tower : IBlockStructure
         
     }
 
-    void buildExternalCells(Grid grid)
+    void buildExternalCells(Grid grid, Level[] levels)
     {
         for (int x = 0 ; x < numCells.x; ++x)
             for (int y = 0 ; y < numCells.y; ++y)
@@ -195,25 +202,24 @@ final class Tower : IBlockStructure
                     Cell* c = &grid.cell(p);
                     if (grid.isExternal(p))
                     {
-                        c.type = CellType.BALCONY;
-
                         if (x == 0)
-                        {
                             c.hasLeftWall = false;
-                        }
-
+                    
                         if (y == 0)
-                        {
                             c.hasTopWall = false;
-                        }
+
+                        if (z <= 1)
+                            c.type = CellType.FULL;
+                        else
+                            c.balcony = levels[z].balcony;
                     }
 
                     if (z + 1 == numCells.z)
                     {
                         c.hasLeftWall = false;
                         c.hasTopWall = false;
-                        c.type = CellType.ROOF;
                     }
+
                 }
     }
 
@@ -432,7 +438,7 @@ final class Tower : IBlockStructure
                         if (grid.numConnections(x, y, z) == 1)
                         {
                             Cell* c = &grid.cell(x, y, z);
-                            if (c.type == CellType.REGULAR || c.type == CellType.BALCONY)
+                            if (c.type == CellType.REGULAR)
                             {
                                 found = true;
                                 grid.close(vec3i(x, y, z));
@@ -509,9 +515,25 @@ final class Tower : IBlockStructure
     Stair[] addStairs(ref SimpleRng rng, Grid grid, Level[] levels)
     {
         Stair[] stairs;
-        int numStairInLevels = cast(int)(0.5 + 32 * (numCells.x * numCells.y) / (63.0 * 63)); // TODO adapt to available cells
+
+        int stairAdded = 0;
+
         for (int lvl = 0; lvl < numCells.z - 1; ++lvl)
-        {            
+        {    
+            int suitableCells = 0;
+
+            // count regular cells
+            for (int x = 0; x < numCells.x; ++x)
+            {
+                for (int y = 0; y < numCells.y; ++y)
+                {
+                    if (availableForStair(grid.cell(x, y, lvl).type))
+                        suitableCells++;
+                }
+            }
+
+            int numStairInLevels = cast(int)(0.5 + 32 * suitableCells / (63.0 * 63));
+
             int stairRemaining = numStairInLevels;
             while (stairRemaining > 0)
             {
@@ -522,6 +544,7 @@ final class Tower : IBlockStructure
                 vec3i posA = vec3i(dice(rng, 0, numCells.x), dice(rng, 0, numCells.y), lvl);
                 vec3i posB = posA + direction;
                 vec3i posC = posA - direction;
+                vec3i posAboveD = posB + direction + vec3i(0, 0, 1);
 
                 // should not be too near another stair
                 bool tooNear = false;
@@ -534,19 +557,20 @@ final class Tower : IBlockStructure
                     }
                 }
 
-                if (!tooNear && grid.contains(posA) && grid.contains(posB) && grid.contains(posC))
+                if (!tooNear && grid.contains(posA) && grid.contains(posB) && grid.contains(posC) && grid.contains(posAboveD))
                 {
-                    if (grid.canbuildStair(posA) && grid.canbuildStair(posB) && grid.canbuildStair(posC))
+                    if (grid.canbuildStair(posA) && grid.canbuildStair(posB) && grid.canbuildStair(posC) && grid.canbuildStair(posAboveD))
                     {
                         Stair stair = new Stair(posA, direction, levels[lvl + 1].groundColorDark, levels[lvl + 1].groundColorLight );
                         stair.buildCells(rng, grid);
                         stairs ~= stair;                        
                         stairRemaining = stairRemaining - 1;
+                        stairAdded += 1;
                     }
                 }                
             }
         }
-        writefln(" - Added %d stairs", numCells.z * numStairInLevels);
+        writefln(" - Added %d stairs", stairAdded);
         return stairs;
     }
 
@@ -564,8 +588,10 @@ final class Tower : IBlockStructure
         for (int i = 0; i < 5; ++i)
             for (int j = 0; j < 5; ++j)
                 for (int k = 0; k < 7; ++k)
-                {                
-                    map.block(x + i, y + j, z + k).empty();
+                { 
+                    vec3i pos = vec3i(x + i, y + j, z + k);
+                    if (map.contains(pos))
+                        map.block(x + i, y + j, z + k).empty();
                 }
     }
 
@@ -580,7 +606,7 @@ final class Tower : IBlockStructure
         int z = blockPosition.z;
 
         const(Cell) cell = grid.cell(cellPos);
-        bool isBalcony = cell.type == CellType.BALCONY;
+        bool isBalcony = cell.balcony != BalconyType.NONE;
         bool isBalconyLeft = isBalcony && ( (cellX == 0) || grid.cell(cellPos + vec3i(-1, 0, 0)).type == CellType.AIR);
         bool isBalconyRight = isBalcony && ( (cellX + 1 == numCells.x) || grid.cell(cellPos + vec3i(1, 0, 0)).type == CellType.AIR);
         bool isBalconyTop = isBalcony && ( (cellY == 0) || grid.cell(cellPos + vec3i(0, -1, 0)).type == CellType.AIR);
@@ -699,7 +725,16 @@ final class Tower : IBlockStructure
                 map.block(x + 2, y, z + 3).empty();
                 map.block(x + 3, y, z + 3).empty();
             }
-        } 
+        }
+
+        if (cell.type == CellType.FULL)
+        {
+            vec3f fullColor = grey(levels[lvl].wallColor, 0.7f);
+            for (int i = 0; i < 5; ++i)
+                for (int j = 0; j < 5; ++j)
+                    for (int k = 1; k < 6; ++k)
+                        map.block(x + i, y + j, z + k).setf(fullColor);
+        }
 
         if (isBalcony)
         {
@@ -710,26 +745,24 @@ final class Tower : IBlockStructure
                 for (int j = 0; j < 5; ++j)
                 {
                     int wallSize = -1;
-                    int lvlBalconyWall = lvl == 0 ? 6 : 1;
+
                     if (cell.hasFloor)
                     {
                         if (i == 0 && isBalconyLeft)
-                            wallSize = lvlBalconyWall;
+                            wallSize = 1;
                         if (j == 0 && isBalconyTop)
-                            wallSize = lvlBalconyWall;
+                            wallSize = 1;
                         if (i + 1 == 5 && isBalconyRight)
-                            wallSize = lvlBalconyWall;
+                            wallSize = 1;
                         if (j + 1 == 5 && isBalconyBottom)
-                            wallSize = lvlBalconyWall;
+                            wallSize = 1;
                     }
 
-                    if (lvl <= 1)
-                        wallSize = 6;
-
-                    if (i == 0 && cell.hasLeftWall)
-                        wallSize = 6;
-                    if (j == 0 && cell.hasTopWall)
-                        wallSize = 6;
+                    if (cell.balcony == BalconyType.BATTLEMENT)
+                    {
+                        if ((i ^ j) & 1)
+                            wallSize = -1;                       
+                    }
 
                     for (int k = 0; k <= wallSize; ++k)
                     {

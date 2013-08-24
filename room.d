@@ -39,7 +39,7 @@ final class Room : ICellStructure
 
                     // balcony for floor
                     if (z == pos.a.z && grid.isExternal(posi) && !isEntrance)
-                        grid.cell(posi).type = CellType.BALCONY;
+                        grid.cell(posi).balcony = BalconyType.SIMPLE;
 
 
                     // ensure floor
@@ -68,8 +68,8 @@ final class Room : ICellStructure
                     if (grid.contains(x, y, z))
                     {
                         Cell* cell = &grid.cell(x, y, z);
-                        if (cell.type == CellType.REGULAR)
-                            cell.type = CellType.BALCONY;
+                        //if (cell.type == CellType.REGULAR)
+                        cell.balcony = BalconyType.SIMPLE;
                     }
     }
 

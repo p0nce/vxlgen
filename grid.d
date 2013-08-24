@@ -30,6 +30,7 @@ class Grid
         foreach (ref cell ; cells)
         {
             cell.type = CellType.REGULAR;
+            cell.balcony = BalconyType.NONE;
         }
     }
 
