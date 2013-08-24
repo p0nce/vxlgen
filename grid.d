@@ -216,6 +216,21 @@ class Grid
                 isBalconyBottom = true;
         }
     }
+
+    bool canSeeInside(vec3i pos)
+    {
+        if (!contains(pos))
+            return true;
+
+        Cell* c = &cell(pos);
+        if (c.type == CellType.FULL)
+            return false;
+
+        if (numConnections(pos.x, pos.y, pos.z) == 0)
+            return false;
+
+        return true;
+    }
     
 private:
     int numConnectionsImpl(int x, int y, int z, bool countZ)

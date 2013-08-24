@@ -580,6 +580,7 @@ final class Tower : IBlockStructure
         bool isBalcony, isBalconyLeft, isBalconyRight, isBalconyTop, isBalconyBottom;
         grid.getBalconyMask(cellPos, isBalcony, isBalconyLeft, isBalconyRight, isBalconyTop, isBalconyBottom);
         
+        bool canSeeInside = grid.canSeeInside(cellPos);
 
         // cell ground
         if (cell.hasFloor)
@@ -631,30 +632,40 @@ final class Tower : IBlockStructure
             }
 
 
-           if (cellX == 1)
+            if (cellX == 1)
                 wallColor = grey(wallColor, 0.6f);
             for (int j = 0; j < 5; ++j)
                 for (int k = wallBase; k < 7; ++k)
                 {                            
                     map.block(x, y + j, z + k).setf(wallColor);
-                }                    
+                } 
 
-            // single window
-            if (randUniform(rng) < 0.04)
-                map.block(x, y + 2, z + 3).empty();
+            if (canSeeInside && grid.canSeeInside(leftCell))
+            {
+                // single window
+                if (randUniform(rng) < 0.08)
+                    map.block(x, y + 2, z + 3).empty();
 
-            //  two windows
-            else if (randUniform(rng) < 0.02)
-            {
-                map.block(x, y + 1, z + 3).empty();
-                map.block(x, y + 3, z + 3).empty();
-            }
-            //  triple window
-            if (randUniform(rng) < 0.02)
-            {
-                map.block(x, y + 1, z + 3).empty();
-                map.block(x, y + 2, z + 3).empty();
-                map.block(x, y + 3, z + 3).empty();
+                //  two windows
+                else if (randUniform(rng) < 0.04)
+                {
+                    map.block(x, y + 1, z + 3).empty();
+                    map.block(x, y + 3, z + 3).empty();
+                }
+                //  triple window
+                else if (randUniform(rng) < 0.04)
+                {
+                    map.block(x, y + 1, z + 3).empty();
+                    map.block(x, y + 2, z + 3).empty();
+                    map.block(x, y + 3, z + 3).empty();
+                }
+    /*            else if (randUniform(rng) < 0.04)
+                {
+                    // door
+                    map.block(x, y + 2, z + 3).empty();
+                    map.block(x, y + 2, z + 2).empty();
+                    map.block(x, y + 2, z + 1).empty();
+                } */
             }
         }             
 
@@ -677,22 +688,32 @@ final class Tower : IBlockStructure
                     map.block(x + i, y, z + k).setf(wallColor);
                 }
 
-            // single window
-            if (randUniform(rng) < 0.04)
-                map.block(x + 2, y, z + 3).empty();
+            if (canSeeInside && grid.canSeeInside(topCell))
+            {
+                // single window
+                if (randUniform(rng) < 0.08)
+                    map.block(x + 2, y, z + 3).empty();
 
-            //  two windows
-            else if (randUniform(rng) < 0.02)
-            {
-                map.block(x + 1, y, z + 3).empty();
-                map.block(x + 3, y, z + 3).empty();
-            }
-            //  triple window
-            if (randUniform(rng) < 0.02)
-            {
-                map.block(x + 1, y, z + 3).empty();
-                map.block(x + 2, y, z + 3).empty();
-                map.block(x + 3, y, z + 3).empty();
+                //  two windows
+                else if (randUniform(rng) < 0.04)
+                {
+                    map.block(x + 1, y, z + 3).empty();
+                    map.block(x + 3, y, z + 3).empty();
+                }
+                //  triple window
+                else if (randUniform(rng) < 0.04)
+                {
+                    map.block(x + 1, y, z + 3).empty();
+                    map.block(x + 2, y, z + 3).empty();
+                    map.block(x + 3, y, z + 3).empty();
+                }
+         /*       else if (randUniform(rng) < 0.04)
+                {
+                    // door
+                    map.block(x + 2, y, z + 3).empty();
+                    map.block(x + 2, y, z + 2).empty();
+                    map.block(x + 2, y, z + 1).empty();
+                }*/
             }
         }
 
