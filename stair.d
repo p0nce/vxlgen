@@ -101,9 +101,10 @@ final class Stair : ICellStructure
         grid.tryDisconnectWith(bpos, dirSide2);
 
         // ensure no roof
-        {
-            vec3i aboveA = start + vec3i(0, 0, 1);
-            vec3i aboveB = bpos + vec3i(0, 0, 1);
+        vec3i aboveA = start + vec3i(0, 0, 1);
+        vec3i aboveB = bpos + vec3i(0, 0, 1);
+        vec3i aboveC = cpos + vec3i(0, 0, 1);
+        {            
             assert(grid.contains(aboveA));
             
             grid.cell(aboveA).type = CellType.AIR;
@@ -118,12 +119,24 @@ final class Stair : ICellStructure
             // ensure no wall at the end of the stair
             // ensure floor too
             vec3i aboveD = aboveB + direction;
-            if (grid.contains(aboveD))
+            assert(grid.contains(aboveD));
             {
-      //          grid.cell(aboveD).type = CellType.STAIR_END_HIGH;
+                grid.cell(aboveD).type = CellType.STAIR_END_HIGH;
                 grid.connectWith(aboveB, direction);
                 grid.disconnectWith(aboveD, vec3i(0, 0, -1));
             }
-        }            
+        }    
+
+        // balcony
+        if (grid.contains(aboveA + dirSide1))
+            grid.cell(aboveA + dirSide1).balcony = BalconyType.SIMPLE;
+        if (grid.contains(aboveA + dirSide2))
+            grid.cell(aboveA + dirSide2).balcony = BalconyType.SIMPLE;
+        if (grid.contains(aboveB + dirSide1))
+            grid.cell(aboveB + dirSide1).balcony = BalconyType.SIMPLE;
+        if (grid.contains(aboveB + dirSide2))
+            grid.cell(aboveB + dirSide2).balcony = BalconyType.SIMPLE;
+        if (grid.contains(aboveC))
+            grid.cell(aboveC).balcony = BalconyType.SIMPLE;
     }
 }

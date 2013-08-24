@@ -167,6 +167,55 @@ class Grid
         tryConnectWith(v, vec3i(0, 0, 1));
         tryConnectWith(v, vec3i(0, 0, -1));
     }
+
+    void getBalconyMask(vec3i cellPos, out bool isBalcony, out bool isBalconyLeft, out bool isBalconyRight, out bool isBalconyTop, out bool isBalconyBottom,)
+    {
+        Cell* c = &cell(cellPos);
+        isBalcony = c.balcony != BalconyType.NONE;
+        isBalconyLeft = false;
+        isBalconyRight = false;
+        isBalconyTop = false;
+        isBalconyBottom = false;
+
+        if (!isBalcony)
+            return;
+
+        if (cellPos.x == 0)
+            isBalconyLeft = true;
+        else
+        {
+            Cell* left = &cell(cellPos + vec3i(-1, 0, 0));
+            if (left.type == CellType.AIR && c.type != CellType.STAIR_END_HIGH)
+                isBalconyLeft = true;
+        }
+
+        if (cellPos.x + 1 == numCells.x)
+            isBalconyRight = true;
+        else
+        {
+            Cell* right = &cell(cellPos + vec3i(1, 0, 0));
+            if (right.type == CellType.AIR && c.type != CellType.STAIR_END_HIGH)
+                isBalconyRight = true;
+        }
+
+        if (cellPos.y == 0)
+            isBalconyTop = true;
+        else
+        {
+            Cell* top = &cell(cellPos + vec3i(0, -1, 0));
+            if (top.type == CellType.AIR && c.type != CellType.STAIR_END_HIGH)
+                isBalconyTop = true;
+        }
+
+        if (cellPos.y + 1 == numCells.y)
+            isBalconyBottom = true;
+        else
+        {
+            Cell* bottom = &cell(cellPos + vec3i(0, 1, 0));
+            if (bottom.type == CellType.AIR && c.type != CellType.STAIR_END_HIGH)
+                isBalconyBottom = true;
+        }
+    }
     
 private:
     int numConnectionsImpl(int x, int y, int z, bool countZ)
@@ -228,4 +277,6 @@ private:
         else if (dir.z == 1)
             other.hasFloor = enabled;
     }
+
+    
 }

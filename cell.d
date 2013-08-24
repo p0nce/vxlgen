@@ -57,7 +57,8 @@ bool availableForRoom(CellType ct)
     switch(ct)
     {
         case CellType.REGULAR: 
-        case CellType.FULL: 
+        case CellType.FULL:
+        case CellType.STAIR_END_HIGH:
             return true;
 
         default:

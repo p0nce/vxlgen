@@ -111,8 +111,8 @@ final class Tower : IBlockStructure
                 {
                     Cell* cell = &grid.cell(i, j, k);
 
-                    cell.hasLeftWall = randUniform(rng) < 0.5;
-                    cell.hasTopWall = randUniform(rng) < 0.5;
+                    cell.hasLeftWall = randUniform(rng) < 0.6;
+                    cell.hasTopWall = randUniform(rng) < 0.6;
                     float floorThreshold = 0.95f;
                     
                     if (k == 0)
@@ -138,7 +138,7 @@ final class Tower : IBlockStructure
         // red water
         {
             vec3i d = numCells * cellSize + 1;
-            vec3f red = vec3f(100, 0, 0) / 255.0f;
+            vec3f red = vec3f(80, 0, 0) / 255.0f;
             for (int y = 0; y < d.y; ++y)
             {
                 for (int x = 0; x < d.x; ++x)
@@ -184,7 +184,6 @@ final class Tower : IBlockStructure
         foreach (room; rooms)
             build(room);
 
-        makeTowerEnvelope(rng, map);
         foreach (stair; stairs)
             build(stair);
 
@@ -221,34 +220,6 @@ final class Tower : IBlockStructure
                     }
 
                 }
-    }
-
-    void makeTowerEnvelope(ref SimpleRng rng, AOSMap map)
-    {             
-
-        vec3f grey = vec3f(0.7f,0.7f,0.7f);
-        vec3f lightGrey = vec3f(0.8f,0.8f,0.8f);
-
-        // top
-   /*     {
-            for (int x = 0 ; x < dimension.x; ++x)
-                for (int y = 0 ; y < dimension.y; ++y)
-                {
-                    map.block(position.x + x, position.y + y, position.z + dimension.z - 1).setf(lightGrey);
-                }     
-
-            for (int x = 0 ; x < dimension.x; x += 2)            
-            {
-                map.block(position.x + x, position.y, position.z + dimension.z).setf(grey);            
-                map.block(position.x + x, position.y + dimension.y - 1, position.z + dimension.z).setf(lightGrey);            
-            }
-
-            for (int y = 0 ; y < dimension.y; y += 2)
-            {
-                map.block(position.x, position.y + y, position.z + dimension.z).setf(grey);
-                map.block(position.x + dimension.x - 1, position.y + y, position.z + dimension.z).setf(lightGrey);
-            }
-        }*/
     }
 
     void ensureEachFloorConnected(ref SimpleRng rng, Grid grid)
@@ -606,11 +577,9 @@ final class Tower : IBlockStructure
         int z = blockPosition.z;
 
         const(Cell) cell = grid.cell(cellPos);
-        bool isBalcony = cell.balcony != BalconyType.NONE;
-        bool isBalconyLeft = isBalcony && ( (cellX == 0) || grid.cell(cellPos + vec3i(-1, 0, 0)).type == CellType.AIR);
-        bool isBalconyRight = isBalcony && ( (cellX + 1 == numCells.x) || grid.cell(cellPos + vec3i(1, 0, 0)).type == CellType.AIR);
-        bool isBalconyTop = isBalcony && ( (cellY == 0) || grid.cell(cellPos + vec3i(0, -1, 0)).type == CellType.AIR);
-        bool isBalconyBottom = isBalcony && ( (cellY + 1 == numCells.y) || grid.cell(cellPos + vec3i(0, 1, 0)).type == CellType.AIR);
+        bool isBalcony, isBalconyLeft, isBalconyRight, isBalconyTop, isBalconyBottom;
+        grid.getBalconyMask(cellPos, isBalcony, isBalconyLeft, isBalconyRight, isBalconyTop, isBalconyBottom);
+        
 
         // cell ground
         if (cell.hasFloor)
@@ -732,7 +701,7 @@ final class Tower : IBlockStructure
             vec3f fullColor = grey(levels[lvl].wallColor, 0.7f);
             for (int i = 0; i < 5; ++i)
                 for (int j = 0; j < 5; ++j)
-                    for (int k = 1; k < 6; ++k)
+                    for (int k = 0; k < 6; ++k)
                         map.block(x + i, y + j, z + k).setf(fullColor);
         }
 
