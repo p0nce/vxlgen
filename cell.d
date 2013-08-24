@@ -6,6 +6,7 @@ enum CellType
     AIR,
     REGULAR,
     ROOM_FLOOR,
+    ROOF,
     STAIR_BODY,
     STAIR_END_HIGH,
     STAIR_END_LOW,
@@ -38,10 +39,11 @@ bool shouldBeConnected(CellType ct)
             return true;
 
         case CellType.STAIR_BODY: 
+        case CellType.ROOF:
             return false;
 
         case CellType.STAIR_END_HIGH: 
-        case CellType.STAIR_END_LOW: 
+        case CellType.STAIR_END_LOW:         
             return true;
     }
 }

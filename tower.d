@@ -21,13 +21,13 @@ class Level
 {
 public:
 
-    this(int lvl, ref SimpleRng rng)
+    this(int lvl, ref SimpleRng rng, bool isRoof)
     {
         vec3f color = randomColor(rng);
-        this(lvl, rng, color);
+        this(lvl, rng, color, isRoof);
     }
 
-    this(int lvl, ref SimpleRng rng, vec3f color)
+    this(int lvl, ref SimpleRng rng, vec3f color,  bool isRoof)
     {
         groundColorLight = mix!(vec3f, float)( color, vec3f(1,1,1), 0.4f + 0.2f * randUniform(rng));
         groundColorDark = mix!(vec3f, float)( color, vec3f(0,0,0), 0.4f + 0.2f * randUniform(rng));
@@ -42,7 +42,10 @@ public:
             wallColor *= 0.3;
         }
 
-        groundPattern = PatternEx(cast(Pattern)dice(rng, Pattern.min, Pattern.max + 1), randBool(rng), randBool(rng));
+        if (isRoof)
+            groundPattern = PatternEx(Pattern.ONLY_ONE, false, false, 0.003f);
+        else
+            groundPattern = PatternEx(cast(Pattern)dice(rng, Pattern.min, Pattern.max + 1), randBool(rng), randBool(rng), 0.008f);
     }
     vec3f groundColorLight;
     vec3f groundColorDark;
@@ -50,7 +53,7 @@ public:
     PatternEx groundPattern;
 }
 
-class Tower : IBlockStructure
+final class Tower : IBlockStructure
 {
     vec3i position;
     vec3i numCells;
@@ -62,6 +65,8 @@ class Tower : IBlockStructure
 
     this(vec3i position, vec3i numCells)
     {
+        numCells.z += 1; // for roof
+
         this.position = position;
         this.numCells = numCells;
         cellSize = vec3i(4, 4, 6);
@@ -81,13 +86,14 @@ class Tower : IBlockStructure
     void buildBlocks(ref SimpleRng rng, AOSMap map)
     {
         Level[] levels;
-        levels.length = numCells.z;
-        for (int l = 0; l < numCells.z; ++l)
+        for (int l = 0; l < numCells.z - 1; ++l)
         {
-            levels[l] = new Level(l, rng);
+            levels ~= new Level(l, rng, false);
         }  
-        levels ~= new Level(numCells.z, rng, vec3f(0.7f));
+        levels ~= new Level(numCells.z - 1, rng, vec3f(0.85f), true);
+        levels ~= new Level(numCells.z, rng, vec3f(0.85f), true);
 
+      
 
         Grid grid = new Grid(numCells);
 
@@ -100,7 +106,13 @@ class Tower : IBlockStructure
 
                     cell.hasLeftWall = randUniform(rng) < 0.5;
                     cell.hasTopWall = randUniform(rng) < 0.5;
-                    float floorThreshold = k == 0 ? 0.9f : 0.95f;
+                    float floorThreshold = 0.95f;
+                    
+                    if (k == 0)
+                        floorThreshold = 0.9f;
+                    
+                    if (k == numCells.z - 1)
+                        floorThreshold = 1.0f;
                     cell.hasFloor = randUniform(rng) < floorThreshold;
                 }        
         
@@ -195,6 +207,13 @@ class Tower : IBlockStructure
                             c.hasTopWall = false;
                         }
                     }
+
+                    if (z + 1 == numCells.z)
+                    {
+                        c.hasLeftWall = false;
+                        c.hasTopWall = false;
+                        c.type = CellType.ROOF;
+                    }
                 }
     }
 
@@ -205,7 +224,7 @@ class Tower : IBlockStructure
         vec3f lightGrey = vec3f(0.8f,0.8f,0.8f);
 
         // top
-        {
+   /*     {
             for (int x = 0 ; x < dimension.x; ++x)
                 for (int y = 0 ; y < dimension.y; ++y)
                 {
@@ -223,7 +242,7 @@ class Tower : IBlockStructure
                 map.block(position.x, position.y + y, position.z + dimension.z).setf(grey);
                 map.block(position.x + dimension.x - 1, position.y + y, position.z + dimension.z).setf(lightGrey);
             }
-        }
+        }*/
     }
 
     void ensureEachFloorConnected(ref SimpleRng rng, Grid grid)
@@ -491,7 +510,7 @@ class Tower : IBlockStructure
     {
         Stair[] stairs;
         int numStairInLevels = cast(int)(0.5 + 32 * (numCells.x * numCells.y) / (63.0 * 63)); // TODO adapt to available cells
-        for (int lvl = 0; lvl < numCells.z; ++lvl)
+        for (int lvl = 0; lvl < numCells.z - 1; ++lvl)
         {            
             int stairRemaining = numStairInLevels;
             while (stairRemaining > 0)
@@ -514,7 +533,6 @@ class Tower : IBlockStructure
                         tooNear = true;
                     }
                 }
-
 
                 if (!tooNear && grid.contains(posA) && grid.contains(posB) && grid.contains(posC))
                 {
@@ -542,26 +560,9 @@ class Tower : IBlockStructure
         int y = blockPosition.y;
         int z = blockPosition.z;
 
-        const(Cell) cell = grid.cell(cellPos);
-        bool isBalcony = cell.type == CellType.BALCONY;
-        
-
-        int xmin = 0;
-        int xmax = 5;
-        int ymin = 0;
-        int ymax = 5;
-
-        if (isBalcony)
-        {
-            bool isBalconyLeft = isBalcony && ( (cellX == 0) || grid.cell(cellPos + vec3i(-1, 0, 0)).type == CellType.AIR);
-            bool isBalconyRight = isBalcony && ( (cellX + 1 == numCells.x) || grid.cell(cellPos + vec3i(1, 0, 0)).type == CellType.AIR);
-            bool isBalconyTop = isBalcony && ( (cellY == 0) || grid.cell(cellPos + vec3i(0, -1, 0)).type == CellType.AIR);
-            bool isBalconyBottom = isBalcony && ( (cellY + 1 == numCells.y) || grid.cell(cellPos + vec3i(0, 1, 0)).type == CellType.AIR);
-        }
-        
         // clear block inner space
-        for (int i = xmin; i < xmax; ++i)
-            for (int j = ymin; j < ymax; ++j)
+        for (int i = 0; i < 5; ++i)
+            for (int j = 0; j < 5; ++j)
                 for (int k = 0; k < 7; ++k)
                 {                
                     map.block(x + i, y + j, z + k).empty();
@@ -599,7 +600,7 @@ class Tower : IBlockStructure
                 for (int j = 0; j < 5; ++j)
                 {
                     // sometime forget one
-                    if (randUniform(rng) > 0.999)
+                    if (lvl + 1 != numCells.z && randUniform(rng) > 0.999)
                         continue;
 
                     vec3f color = patternColor(rng, levels[lvl].groundPattern, 

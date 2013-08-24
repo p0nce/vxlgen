@@ -23,6 +23,7 @@ struct PatternEx
     Pattern pattern;
     bool swapIJ;
     bool swapColors;
+    float noiseAmount;
 }
 
 vec3f patternColor(ref SimpleRng rng, PatternEx pattern, int i, int j, vec3f colorLight, vec3f colorDark)
@@ -119,5 +120,5 @@ vec3f patternColor(ref SimpleRng rng, PatternEx pattern, int i, int j, vec3f col
         colorDark = temp;
     }
 
-    return subColor(i, j, pattern.pattern, colorLight, colorDark) + randomPerturbation(rng) * 0.008f;
+    return subColor(i, j, pattern.pattern, colorLight, colorDark) + randomPerturbation(rng) * pattern.noiseAmount;
 }

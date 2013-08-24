@@ -10,7 +10,7 @@ import aosmap;
 import randutils;
 import simplexnoise;
 
-class Tree : IBlockStructure
+final class Tree : IBlockStructure
 {
 public:
     vec3i pos;

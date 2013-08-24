@@ -18,7 +18,7 @@ interface IBlockStructure
     void buildBlocks(ref SimpleRng rng, AOSMap map);
 }
 
-class AOSMap
+final class AOSMap
 {
 public:
 

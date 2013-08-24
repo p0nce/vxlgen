@@ -9,7 +9,7 @@ import vector;
 import aosmap;
 import box;
 
-class Room : ICellStructure
+final class Room : ICellStructure
 {   
     box3i pos;
     bool isEntrance;

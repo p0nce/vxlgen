@@ -10,7 +10,7 @@ import aosmap;
 import cell;
 import randutils;
 
-class Stair : ICellStructure
+final class Stair : ICellStructure
 {
     vec3i start;
     vec3i direction;
@@ -104,28 +104,26 @@ class Stair : ICellStructure
         {
             vec3i aboveA = start + vec3i(0, 0, 1);
             vec3i aboveB = bpos + vec3i(0, 0, 1);
-            if (grid.contains(aboveA))
-            {
-                grid.cell(aboveA).type = CellType.AIR;
-                grid.connectWith(start, vec3i(0, 0, 1));
-            }
-            if (grid.contains(aboveB))
-            {
-                grid.cell(aboveB).type = CellType.AIR;
-                grid.connectWith(bpos, vec3i(0, 0, 1));
+            assert(grid.contains(aboveA));
+            
+            grid.cell(aboveA).type = CellType.AIR;
+            grid.connectWith(start, vec3i(0, 0, 1));
+            
+            assert(grid.contains(aboveB));
 
-                // ensure no wall at the end of the stair
-                // ensure floor too
-                vec3i aboveD = aboveB + direction;
-                if (grid.contains(aboveD))
-                {
-                    grid.cell(aboveD).type = CellType.STAIR_END_HIGH;
-                    grid.connectWith(aboveB, direction);
-                    grid.connectWith(aboveB, vec3i(0, 0, -1));
-                }
+            grid.connectWith(aboveA, aboveB - aboveA);            
+            grid.cell(aboveB).type = CellType.AIR;
+            grid.connectWith(bpos, vec3i(0, 0, 1));
+
+            // ensure no wall at the end of the stair
+            // ensure floor too
+            vec3i aboveD = aboveB + direction;
+            if (grid.contains(aboveD))
+            {
+      //          grid.cell(aboveD).type = CellType.STAIR_END_HIGH;
+                grid.connectWith(aboveB, direction);
+                grid.disconnectWith(aboveD, vec3i(0, 0, -1));
             }
-            if (grid.contains(aboveA) && grid.contains(aboveB))
-                grid.connectWith(aboveA, aboveB - aboveA);
         }            
     }
 }
