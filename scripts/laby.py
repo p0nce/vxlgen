@@ -36,20 +36,49 @@ def get_entity_location(self, entity_id):
         return (256 + 2 - 1, 256, 0)
 
 def get_spawn_location(connection):
-    xb = connection.team.base.x
-    yb = connection.team.base.y
-    xb += randint(-SPAWN_SIZE, SPAWN_SIZE)
-    yb += randint(-SPAWN_SIZE, SPAWN_SIZE)
-    zb = 63 - 7
-    while connection.protocol.map.get_solid(xb, yb, zb-1):
-        (xb, yb) = (xb + randint(-1, 1), yb + randint(-1, 1))
-    return (xb, yb, zb)
+    loop = 0
+    protocol = connection.protocol
+    minx = protocol.tower_position[0] - 5
+    maxx = protocol.tower_position[0] + protocol.cell_size[0] * protocol.tower_cells[0] + 4
+    miny = protocol.tower_position[1] - 5
+    maxy = protocol.tower_position[1] + protocol.cell_size[1] * protocol.tower_cells[1] + 4
+    while True:
+
+        x = randint(minx, maxx)
+        y = randint(miny, maxy)
+        lvl = randint(0, protocol.num_floors)
+        z = 3 +  protocol.cell_size[2] * lvl
+        z = 63 - z
+        loop = loop + 1
+        map = protocol.map
+        if (loop < 1000): # detect infinite loop (never happened yet)
+            if map.get_solid(x, y, z):
+                continue
+            if map.get_solid(x+1, y, z):
+                continue
+            if map.get_solid(x, y+1, z):
+                continue
+            if map.get_solid(x+1, y+1, z):
+                continue
+            if map.get_solid(x, y, z-1):
+                continue
+            if map.get_solid(x+1, y, z-1):
+                continue
+            if map.get_solid(x, y+1, z-1):
+                continue
+            if map.get_solid(x+1, y+1, z-1):
+                continue
+
+        # find  floor
+        while z < 63 and not map.get_solid(x, y, z):
+            z = z + 1
+        return (x + 0.5, y + 0.5, z)
 
 
 def intel_spawn_location(self):
     loop = 0
     while True:
-        AREA = 20 
+        AREA = 20
         x = randint(254 - AREA, 254 + AREA)
         y = randint(254 - AREA, 254 + AREA)
         lvl = randint(0, self.num_floors)
@@ -79,7 +108,7 @@ def intel_spawn_location(self):
             z = z + 1
             
         self.send_chat("The intel spawned " + self.level_to_floor(lvl) + ".")
-        return (x, y, z)
+        return (x + 0.5, y + 0.5, z)
 
 
 
