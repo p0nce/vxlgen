@@ -371,7 +371,7 @@ final class Tower : IBlockStructure
 
                 // found nothing!
                 // we have connex things
-          //      writefln("Found %s unreachable area in level %s", coloursToEliminate, lvl) ;
+                writefln("Found %s unreachable area in level %s", coloursToEliminate, lvl) ;
                 break eliminate_colours;
             }
 

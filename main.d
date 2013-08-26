@@ -54,6 +54,8 @@ void main(string[] argv)
             uint a = ul & 0xffffffff;
             uint b = (ul >> 32) & 0xffffffff;
             rng = SimpleRng(vec2ui(a, b));
+            seed = rng.seed.x | (cast(ulong)(rng.seed.y) << 32);
+            assert(seed == ul);
         }
         else if (arg == "-o")
         {
@@ -69,6 +71,12 @@ void main(string[] argv)
         }     
         else if (arg == "-h" || arg == "-help")
         {
+            usage();
+            return;
+        }
+        else
+        {
+            writefln("error: unknown argument %s", arg);
             usage();
             return;
         }

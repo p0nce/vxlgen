@@ -57,6 +57,9 @@ class Grid
 
     ref Cell cell(int x, int y, int z)
     {
+        assert(cast(uint)x < numCells.x);
+        assert(cast(uint)y < numCells.y);
+        assert(cast(uint)z < numCells.z);
         return cells[z * (numCells.x * numCells.y ) + y * numCells.x + x];
     }
 
