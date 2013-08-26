@@ -14,7 +14,6 @@ Adapted to labyrinth map by ponce
 from pyspades.constants import *
 from random import randint
 from twisted.internet import reactor
-from commands import add, admin
 from pyspades.collision import vector_collision, distance_3d_vector
 from pyspades.server import grenade_packet, block_action, set_tool
 from pyspades.world import Grenade
@@ -206,7 +205,8 @@ def apply_script(protocol, connection, config):
 
     return LabyrinthProtocol, LabyrinthConnection
 
-@commands.alias('floor')
+@commands.name('floor')
+@commands.alias('f')
 def floor(connection):
     protocol = connection.protocol
     if connection not in protocol.players:
@@ -233,5 +233,5 @@ def floor(connection):
 
     iz = pos[2]
     return "You are " + protocol.z_to_floor(pz) + ", the intel is " + protocol.z_to_floor(iz) + "."
-add(floor)
+commands.add(floor)
 
