@@ -118,7 +118,7 @@ void main(string[] argv)
     {
         auto f = File(outputFileTXT, "w"); // open for writing
 
-        f.writefln("name = 'Labyrinth'");
+        f.writefln("name = 'Labyrinth Tower'");
         f.writefln("version = '%s.%s'", MAJOR_VERSION, MINOR_VERSION);
         f.writefln("author = 'vxlgen'");
         f.writefln("description = ('Labyrinth generated map')");
