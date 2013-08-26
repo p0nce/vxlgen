@@ -87,6 +87,20 @@ def intel_spawn_location(self):
 def apply_script(protocol, connection, config):
 
     class LabyrinthConnection(connection):
+
+        allowed_intel_hold_time = 180
+        auto_kill_intel_hog_call = None
+
+
+        def auto_kill_intel_hog(self):
+            self.auto_kill_intel_hog_call = None
+            self.kill()
+            self.protocol.send_chat('%s was punished for holding the intel too long' % (self.name))
+
+        def cancel_auto_kill(self):
+            if self.auto_kill_intel_hog_call is not None:
+                self.auto_kill_intel_hog_call.cancel()
+                self.auto_kill_intel_hog_call = None
         
         def on_flag_take(self):
             flag = self.team.flag
@@ -95,9 +109,15 @@ def apply_script(protocol, connection, config):
                 flag.update()
             else:
                 return False
+
+            self.cancel_auto_kill()
+            self.auto_kill_intel_hog_call = reactor.callLater(self.allowed_intel_hold_time, self.auto_kill_intel_hog)
+
             return connection.on_flag_take(self)
         
         def on_flag_drop(self):
+
+            self.cancel_auto_kill()
 
             # move both intel
             position = self.world_object.position
@@ -120,9 +140,13 @@ def apply_script(protocol, connection, config):
             return connection.on_flag_drop(self)
 
         def on_flag_capture(self):
+            self.cancel_auto_kill()
             self.protocol.one_ctf_spawn_pos = intel_spawn_location(self.protocol)
             self.protocol.onectf_reset_flags()
             return connection.on_flag_capture(self)
+
+        def on_reset(self):
+            self.cancel_auto_kill()
         
         def intel_every_second(self):
             if self is None or self.hp <= 0:
