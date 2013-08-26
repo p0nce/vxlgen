@@ -71,7 +71,6 @@ bool availableForStair(CellType ct)
     switch(ct)
     {
         case CellType.REGULAR: 
-        case CellType.FULL: 
             return true;
 
         default:
