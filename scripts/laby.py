@@ -46,7 +46,7 @@ def get_spawn_location(connection):
 
         x = randint(minx, maxx)
         y = randint(miny, maxy)
-        lvl = randint(0, protocol.num_floors)
+        lvl = randint(0, protocol.num_floors - 1) # never on roof
         z = 3 +  protocol.cell_size[2] * lvl
         z = 63 - z
         loop = loop + 1
@@ -54,25 +54,15 @@ def get_spawn_location(connection):
         if (loop < 1000): # detect infinite loop (never happened yet)
             if map.get_solid(x, y, z):
                 continue
-            if map.get_solid(x+1, y, z):
+            if map.get_solid(x, y, z - 1):
                 continue
-            if map.get_solid(x, y+1, z):
-                continue
-            if map.get_solid(x+1, y+1, z):
-                continue
-            if map.get_solid(x, y, z-1):
-                continue
-            if map.get_solid(x+1, y, z-1):
-                continue
-            if map.get_solid(x, y+1, z-1):
-                continue
-            if map.get_solid(x+1, y+1, z-1):
+            if map.get_solid(x, y, z - 2):
                 continue
 
         # find  floor
         while z < 63 and not map.get_solid(x, y, z):
             z = z + 1
-        return (x + 0.5, y + 0.5, z)
+        return (x, y, z)
 
 
 def intel_spawn_location(self):
