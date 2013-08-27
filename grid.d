@@ -240,8 +240,11 @@ private:
     {
         Cell it = cell(x, y, z);
 
+        if (it.type == CellType.FULL)
+            return 0;
+
         int res = 0;
-        
+
         if (z > 0 && !it.hasFloor && countZ) 
             res++;
         if (x > 0 && !it.hasLeftWall) 
@@ -252,21 +255,21 @@ private:
         if (x + 1 < numCells.x)
         {
             Cell right = cell(x + 1, y, z);
-            if (!right.hasLeftWall)
+            if (!right.hasLeftWall && right.type != CellType.FULL)
                 res++;
         }
 
         if (y + 1 < numCells.y)
         {
             Cell bottom = cell(x, y + 1, z);
-            if (!bottom.hasTopWall)
+            if (!bottom.hasTopWall && bottom.type != CellType.FULL)
                 res++;
         }
 
         if (countZ && (z + 1 < numCells.z))
         {
             Cell above = cell(x, y, z + 1);
-            if (!above.hasFloor)
+            if (!above.hasFloor && above.type != CellType.FULL)
                 res++;
         }
         return res;
