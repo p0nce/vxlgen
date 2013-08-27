@@ -177,7 +177,7 @@ def apply_script(protocol, connection, config):
 
         def explosion(self, grenade):
             x, y, z = (int(n) for n in grenade.position.get())
-            self.set_location_safe((x, y, z - 1))
+            self.set_location_safe((x + 0.5, y + 0.5, z - 2.4))
 
 
     class LabyrinthProtocol(protocol):
