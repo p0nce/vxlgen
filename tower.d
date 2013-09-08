@@ -428,7 +428,23 @@ final class Tower : IBlockStructure
     {      
         Room[] rooms;
         double roomProportion = 0.09;
-        double roomCells = numCells.x * numCells.y * numCells.z * roomProportion;
+
+        int suitableCells = 0;
+
+        // count space for rooms
+        for (int x = 0; x < numCells.x; ++x)
+        {
+            for (int y = 0; y < numCells.y; ++y)
+            {
+                for (int z = 0; z < numCells.z; ++z)
+                {
+                    if (availableForRoom(grid.cell(x, y, z).type))
+                        suitableCells++;
+                }
+            }
+        }
+
+        double roomCells = suitableCells * roomProportion;
         int numRooms = 0;
 
         void tryRoom(box3i bb, bool isEntrance)
@@ -591,7 +607,7 @@ final class Tower : IBlockStructure
         }
 
         // cell ground
-        if (cell.hasFloor)
+        if (!grid.isConnectedWith(cellPos, vec3i(0, 0, -1)))
         {
            
             for (int i = 0; i < 5; ++i)
@@ -814,7 +830,7 @@ final class Tower : IBlockStructure
                 {
                     int wallSize = -1;
 
-                    if (cell.hasFloor)
+                    if (!grid.isConnectedWith(cellPos, vec3i(0, 0, -1)))
                     {
                         if (i == 0 && isBalconyLeft)
                             wallSize = 1;

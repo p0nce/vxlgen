@@ -91,15 +91,21 @@ class Grid
         if (!contains(v + dir))
             return false;
 
+        Cell other = cell(v + dir);
+
         Cell it = cell(v);
         if (dir.x == -1)
             return !it.hasLeftWall;
         if (dir.y == -1)
             return !it.hasTopWall;
         if (dir.z == -1)
+        {
+            if (!it.hasFloor && other.type == CellType.FULL)
+            {
+                return false;
+            }
             return !it.hasFloor;
-
-        Cell other = cell(v + dir);
+        }
         if (dir.x == 1)
             return !other.hasLeftWall;
         if (dir.y == 1)
