@@ -240,6 +240,45 @@ class Grid
 
         return true;
     }
+
+    void clearArea(box3i pos)
+    {
+        for (int x = pos.a.x; x < pos.b.x; ++x)
+            for (int y = pos.a.y; y < pos.b.y; ++y)
+                for (int z = pos.a.z; z < pos.b.z; ++z)
+                {     
+                    vec3i posi = vec3i(x, y, z);
+                    cell(posi).type = (z == pos.a.z) ? CellType.ROOM_FLOOR : CellType.AIR;
+
+                    // balcony for floor
+                    if (z == pos.a.z && z > 1)
+                        cell(posi).balcony = BalconyType.SIMPLE;
+
+                    // ensure floor
+                    if (z == pos.a.z)
+                        cell(posi).hasFloor = true;
+
+                    // ensure space                    
+                    if (x + 1 < pos.b.x)
+                        connectWith(posi, vec3i(1, 0, 0));
+
+                    if (y + 1 < pos.b.y)
+                        connectWith(posi, vec3i(0, 1, 0));
+
+                    if (z + 1 < pos.b.z)
+                        connectWith(posi, vec3i(0, 0, 1));
+                }
+
+        // balcony
+        for (int z = pos.a.z + 1; z < pos.b.z; ++z)
+            for (int x = pos.a.x - 1; x < pos.b.x + 1; ++x)
+                for (int y = pos.a.y - 1; y < pos.b.y + 1; ++y)
+                    if (contains(x, y, z))
+                    {
+                        Cell* c = &cell(x, y, z);
+                        c.balcony = BalconyType.SIMPLE;
+                    }
+    }
     
 private:
     int numConnectionsImpl(int x, int y, int z, bool countZ)

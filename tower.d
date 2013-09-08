@@ -15,6 +15,17 @@ import funcs;
 import box;
 
 
+enum MetaStructure
+{
+    NORMAL,
+    ARCH,
+    PYRAMID,
+    FOUR_PILLARS,
+    CUBE,
+    CROSS,
+}
+
+
 // TODO stairs to hard to find
 
 class Level
@@ -121,9 +132,10 @@ final class Tower : IBlockStructure
                     if (k == numCells.z - 1)
                         floorThreshold = 1.0f;
                     cell.hasFloor = randUniform(rng) < floorThreshold;
-                }        
-        
+                }       
+
         buildExternalCells(grid, levels);
+        buildMetastructure(rng, grid);
 
         Room[] rooms = addRooms(rng, grid);
         Stair[] stairs = addStairs(rng, grid, levels);
@@ -354,7 +366,7 @@ final class Tower : IBlockStructure
                                         firstX = cellX;
 
                                         // eradicate all traces of maxColor
-                    //                    writefln("color %s => %s",maxColor, minColor); 
+                                        //writefln("color %s => %s",maxColor, minColor); 
                                         foreach (ref lookup ; colorLookup)
                                         {
                                             if (lookup == maxColor)
@@ -385,8 +397,8 @@ final class Tower : IBlockStructure
                     if (color != -2 && colorLookup[color] != 0)
                     {
                         // unreachable area
-                        assert(colorLookup[color] == color);
-                        grid.open(p);
+                  //      assert(colorLookup[color] == color);
+                  //      grid.open(p);
                     }
 
                 }
@@ -866,6 +878,104 @@ final class Tower : IBlockStructure
                                 map.block(x + i, y + j, z + k).setf(balconyColorDark);
                 }
             }
+        }
+    }
+
+    void buildMetastructure(ref SimpleRng rng, Grid grid)
+    {        
+        MetaStructure mt;
+
+        float m = randUniform(rng);
+        if (mt < 0.6f)
+            mt = MetaStructure.NORMAL;
+        else if (mt < 0.7f)
+            mt = MetaStructure.CUBE;
+        else if (mt < 0.8f)
+            mt = MetaStructure.CROSS;
+        else if (mt < 0.9f)
+            mt = MetaStructure.FOUR_PILLARS;
+        else if (mt < 0.9f)
+            mt = MetaStructure.ARCH;
+    //    mt = MetaStructure.CUBE;
+
+        int x3 = (grid.numCells.x + 1) / 3;
+        int y3 = (grid.numCells.y + 1) / 3;
+        int x25 = (grid.numCells.x * 2 + 2) / 5;
+        int y25 = (grid.numCells.y * 2 + 2) / 5;
+        int x4 = (grid.numCells.x + 2) / 4;
+        int y4 = (grid.numCells.y + 2) / 4;
+        int z3 = (grid.numCells.z + 1) / 3;
+        int z4 = (grid.numCells.z + 1) / 3;
+        int nx = grid.numCells.x;
+        int ny = grid.numCells.y;
+        int nz = grid.numCells.z;
+        
+        final switch(mt)
+        {
+            case MetaStructure.NORMAL:
+                break;
+
+            case MetaStructure.ARCH:
+
+                box3i bb;
+                if (randBool(rng))
+                {
+                    bb.a = vec3i(0, y25, 1);
+                    bb.b = vec3i(nx, ny - y25, nz - z4);
+                }
+                else
+                {
+                    bb.a = vec3i(x25, 0, 1);
+                    bb.b = vec3i(nx - x25, ny, nz - z4);
+                }                
+                grid.clearArea(bb);
+                break;
+
+            case MetaStructure.PYRAMID:
+                break;
+
+            case MetaStructure.FOUR_PILLARS:
+                box3i bb;
+                bb.a = vec3i(0, y25, 1);
+                bb.b = vec3i(nx, ny - y25, nz - z4);
+                grid.clearArea(bb);
+                bb.a = vec3i(x25, 0, 1);
+                bb.b = vec3i(nx - x25, ny, nz - z4);
+                grid.clearArea(bb);
+                break;
+
+            case MetaStructure.CUBE:
+                box3i bb;
+                bb.a = vec3i(x3, 0, z3);
+                bb.b = vec3i(nx - x3, ny, nz - z3);
+                grid.clearArea(bb);
+                bb.a = vec3i(0, y3, z3);
+                bb.b = vec3i(nx, ny - y3, nz - z3);
+                grid.clearArea(bb);
+                bb.a = vec3i(x3, y3, 1);
+                bb.b = vec3i(nx - x3, ny - y3, nz);
+                grid.clearArea(bb);
+                break;
+
+
+            case MetaStructure.CROSS:
+                box3i bb;
+                bb.a = vec3i(0, 0, 1);
+                bb.b = vec3i(x3, y3, nz);
+                grid.clearArea(bb);
+
+                bb.a = vec3i(nx - x3, 0, 1);
+                bb.b = vec3i(nx, y3, nz);
+                grid.clearArea(bb);
+
+                bb.a = vec3i(nx - x3, ny - y3, 1);
+                bb.b = vec3i(nx, ny, nz);
+                grid.clearArea(bb);
+
+                bb.a = vec3i(0, ny - y3, 1);
+                bb.b = vec3i(x3, ny, nz);
+                grid.clearArea(bb);
+                break;
         }
     }
 }
