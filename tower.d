@@ -608,7 +608,7 @@ final class Tower : IBlockStructure
         else if (cell.type != CellType.AIR)
         {
             // create hole
-            int[25][4] holePatterns = 
+            int[25][5] holePatterns = 
             [
                 [ 0, 0, 0, 0, 0,
                   0, 0, 0, 0, 0, 
@@ -629,21 +629,28 @@ final class Tower : IBlockStructure
                   1, 0, 0, 1, 1, 
                   1, 0, 0, 1, 1,
                   1, 0, 0, 1, 1,
-                  1, 0, 0, 1, 1  ]
+                  1, 0, 0, 1, 1  ],
+                [ 0, 0, 0, 1, 1,
+                  0, 0, 0, 1, 1, 
+                  0, 0, 0, 0, 0,
+                  0, 0, 0, 0, 0,
+                  0, 0, 0, 0, 0  ]
             ];
 
             int[25]* holePattern;
 
             float p = randUniform(rng);
 
-            if (p < 0.4f)
+            if (p < 0.2f)
                 holePattern = &holePatterns[0];
-            else if (p < 0.6f)
+            else if (p < 0.4f)
                 holePattern = &holePatterns[1];
-            else if (p < 0.8f)
+            else if (p < 0.6f)
                 holePattern = &holePatterns[2];
-            else
+            else if (p < 0.8f)
                 holePattern = &holePatterns[3];
+            else
+                holePattern = &holePatterns[4];
 
 
             bool swapIJ = randBool(rng);
