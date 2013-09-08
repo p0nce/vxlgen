@@ -894,7 +894,7 @@ final class Tower : IBlockStructure
             mt = MetaStructure.CROSS;
         else if (mt < 0.9f)
             mt = MetaStructure.FOUR_PILLARS;
-        else if (mt < 0.9f)
+        else
             mt = MetaStructure.ARCH;
     //    mt = MetaStructure.CUBE;
 
