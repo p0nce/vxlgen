@@ -582,29 +582,99 @@ final class Tower : IBlockStructure
         
         bool canSeeInside = grid.canSeeInside(cellPos);
 
+        vec3f lightColor = levels[lvl].groundColorLight;
+        vec3f darkColor = levels[lvl].groundColorDark;
+        if (isStairPart(cell.type))
+        {
+            lightColor = levels[lvl+1].groundColorLight;
+            darkColor = levels[lvl+1].groundColorDark;
+        }
+
         // cell ground
         if (cell.hasFloor)
         {
-            vec3f lightColor = levels[lvl].groundColorLight;
-            vec3f darkColor = levels[lvl].groundColorDark;
-            if (isStairPart(cell.type))
-            {
-                lightColor = levels[lvl+1].groundColorLight;
-                darkColor = levels[lvl+1].groundColorDark;
-            }
+           
             for (int i = 0; i < 5; ++i)
                 for (int j = 0; j < 5; ++j)
                 {
-                    // sometime forget one
-                    if (lvl + 1 != numCells.z && randUniform(rng) > 0.999)
-                        continue;
-
                     vec3f color = patternColor(rng, levels[lvl].groundPattern, 
                                                i + cellX * 4, 
                                                j + cellY * 4, 
                                                lightColor, 
                                                darkColor);
                     map.block(x + i, y + j, z).setf(color);
+                }
+        }
+        else if (cell.type != CellType.AIR)
+        {
+            // create hole
+            int[25][4] holePatterns = 
+            [
+                [ 0, 0, 0, 0, 0,
+                  0, 0, 0, 0, 0, 
+                  0, 0, 0, 0, 0,
+                  0, 0, 0, 0, 0,
+                  0, 0, 0, 0, 0  ],
+                [ 1, 1, 1, 1, 1,
+                  0, 0, 1, 1, 1, 
+                  0, 0, 0, 1, 1,
+                  0, 0, 0, 0, 1,
+                  0, 0, 0, 0, 0  ],
+                [ 0, 0, 0, 1, 1,
+                  0, 0, 0, 1, 1, 
+                  0, 0, 0, 1, 1,
+                  1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1  ],
+                [ 1, 0, 0, 1, 1,
+                  1, 0, 0, 1, 1, 
+                  1, 0, 0, 1, 1,
+                  1, 0, 0, 1, 1,
+                  1, 0, 0, 1, 1  ]
+            ];
+
+            int[25]* holePattern;
+
+            float p = randUniform(rng);
+
+            if (p < 0.4f)
+                holePattern = &holePatterns[0];
+            else if (p < 0.6f)
+                holePattern = &holePatterns[1];
+            else if (p < 0.8f)
+                holePattern = &holePatterns[2];
+            else
+                holePattern = &holePatterns[3];
+
+
+            bool swapIJ = randBool(rng);
+            bool reverseI = randBool(rng);
+            bool reverseJ = randBool(rng);
+
+            for (int i = 0; i < 5; ++i)
+                for (int j = 0; j < 5; ++j)
+                {
+                    int ii = i;
+                    int jj = j;
+                    if (reverseI) ii = 4 - ii;
+                    if (reverseJ) jj = 4 - jj;
+                    if (swapIJ)
+                    {
+                        int temp = ii;
+                        ii = jj;
+                        jj = temp;
+                    }
+
+
+                    if ((*holePattern)[ii * 5 + jj])
+                    {
+                        vec3f color = patternColor(rng, levels[lvl].groundPattern, 
+                                                   i + cellX * 4, 
+                                                   j + cellY * 4, 
+                                                   lightColor, 
+                                                   darkColor);
+                    
+                        map.block(x + i, y + j, z).setf(color);
+                    }
                 }
         }
 
@@ -728,7 +798,8 @@ final class Tower : IBlockStructure
 
         if (isBalcony)
         {
-            vec3f balconyColor = grey(levels[lvl].wallColor, 0.6f);
+            vec3f balconyColorLight = mix(grey(levels[lvl].wallColor, 0.4f), vec3f(1), 0.6f);
+            vec3f balconyColorDark = mix(grey(levels[lvl].wallColor, 0.7f), vec3f(0), 0.6f);
 
             for (int i = 0; i < 5; ++i)
             {
@@ -756,7 +827,7 @@ final class Tower : IBlockStructure
 
                     for (int k = 0; k <= wallSize; ++k)
                     {
-                        map.block(x + i, y + j, z + k).setf(balconyColor);
+                        map.block(x + i, y + j, z + k).setf(k == 0 ? balconyColorDark : balconyColorLight);
                     }
                 }
             }       
@@ -769,7 +840,7 @@ final class Tower : IBlockStructure
                     for (int i = 0; i < 5; ++i)
                         for (int j = 0; j < 5; ++j)
                             for (int k = 1; k < 6; ++k)
-                                map.block(x + i, y + j, z + k).setf(balconyColor);
+                                map.block(x + i, y + j, z + k).setf(balconyColorDark);
                 }
             }
         }

@@ -46,10 +46,6 @@ final class Room : ICellStructure
                     if (z == pos.a.z)
                         grid.cell(posi).hasFloor = true;
 
-                    // ensure roof
-                    if (grid.contains(x, y, z + 1) && (z + 1) == pos.b.z)
-                        grid.disconnectWith(posi, vec3i(0, 0, 1));
-
                     // ensure space                    
                     if (x + 1 < pos.b.x)
                         grid.connectWith(posi, vec3i(1, 0, 0));
