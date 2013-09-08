@@ -886,13 +886,13 @@ final class Tower : IBlockStructure
         MetaStructure mt;
 
         float m = randUniform(rng);
-        if (mt < 0.6f)
+        if (m < 0.6f)
             mt = MetaStructure.NORMAL;
-        else if (mt < 0.7f)
+        else if (m < 0.7f)
             mt = MetaStructure.CUBE;
-        else if (mt < 0.8f)
+        else if (m < 0.8f)
             mt = MetaStructure.CROSS;
-        else if (mt < 0.9f)
+        else if (m < 0.9f)
             mt = MetaStructure.FOUR_PILLARS;
         else
             mt = MetaStructure.ARCH;
