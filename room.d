@@ -5,9 +5,9 @@ import std.stdio;
 import randutils;
 import grid;
 import cell;
-import vector;
+import gfm.math.vector;
 import aosmap;
-import box;
+import gfm.math.box;
 
 final class Room : ICellStructure
 {   
@@ -24,43 +24,43 @@ final class Room : ICellStructure
 
     vec3i getCellPosition()
     {
-        return pos.a;
+        return pos.min;
     }
 
-    void buildCells(ref SimpleRng rng, Grid grid)
+    void buildCells(ref Random rng, Grid grid)
     {
-        for (int x = pos.a.x; x < pos.b.x; ++x)
-            for (int y = pos.a.y; y < pos.b.y; ++y)
-                for (int z = pos.a.z; z < pos.b.z; ++z)
+        for (int x = pos.min.x; x < pos.max.x; ++x)
+            for (int y = pos.min.y; y < pos.max.y; ++y)
+                for (int z = pos.min.z; z < pos.max.z; ++z)
                 {                    
                     vec3i posi = vec3i(x, y, z);
 
-                    grid.cell(posi).type = (z == pos.a.z) ? CellType.ROOM_FLOOR : CellType.AIR;
+                    grid.cell(posi).type = (z == pos.min.z) ? CellType.ROOM_FLOOR : CellType.AIR;
 
                     // balcony for floor
-                    if (z == pos.a.z && grid.isExternal(posi) && !isEntrance)
+                    if (z == pos.min.z && grid.isExternal(posi) && !isEntrance)
                         grid.cell(posi).balcony = BalconyType.SIMPLE;
 
 
                     // ensure floor
-                    if (z == pos.a.z)
+                    if (z == pos.min.z)
                         grid.cell(posi).hasFloor = true;
 
                     // ensure space                    
-                    if (x + 1 < pos.b.x)
+                    if (x + 1 < pos.max.x)
                         grid.connectWith(posi, vec3i(1, 0, 0));
 
-                    if (y + 1 < pos.b.y)
+                    if (y + 1 < pos.max.y)
                         grid.connectWith(posi, vec3i(0, 1, 0));
 
-                    if (z + 1 < pos.b.z)
+                    if (z + 1 < pos.max.z)
                         grid.connectWith(posi, vec3i(0, 0, 1));
                 }
 
         // balcony
-        for (int z = pos.a.z + 1; z < pos.b.z; ++z)
-            for (int x = pos.a.x - 1; x < pos.b.x + 1; ++x)
-                for (int y = pos.a.y - 1; y < pos.b.y + 1; ++y)
+        for (int z = pos.min.z + 1; z < pos.max.z; ++z)
+            for (int x = pos.min.x - 1; x < pos.max.x + 1; ++x)
+                for (int y = pos.min.y - 1; y < pos.max.y + 1; ++y)
                     if (grid.contains(x, y, z))
                     {
                         Cell* cell = &grid.cell(x, y, z);
@@ -69,7 +69,7 @@ final class Room : ICellStructure
                     }
     }
 
-    void buildBlocks(ref SimpleRng rng, Grid grid, vec3i base, AOSMap map)
+    void buildBlocks(ref Random rng, Grid grid, vec3i base, AOSMap map)
     {
         // red carpet for entrance
         /+if (isEntrance)

@@ -1,6 +1,6 @@
 module area;
 
-import vector, box;
+import gfm.math.vector, gfm.math.box;
 import std.algorithm;
 import std.range;
 
@@ -71,9 +71,9 @@ public:
     vec3i[] enumerateIndices()
     {
         vec3i[] res;
-        for (int x = _b.a.x; x < _b.b.x; ++x)
-            for (int y = _b.a.y; y < _b.b.y; ++y)
-                for (int z = _b.a.z; z < _b.b.z; ++z)
+        for (int x = _b.min.x; x < _b.max.x; ++x)
+            for (int y = _b.min.y; y < _b.max.y; ++y)
+                for (int z = _b.min.z; z < _b.max.z; ++z)
                     res ~= vec3i(x, y, z);
 
         return res;

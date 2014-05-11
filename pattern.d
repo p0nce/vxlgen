@@ -2,7 +2,7 @@ module pattern;
 
 import std.math;
 import randutils;
-import vector;
+import gfm.math.vector;
 
 enum Pattern
 {
@@ -26,7 +26,7 @@ struct PatternEx
     float noiseAmount;
 }
 
-vec3f patternColor(ref SimpleRng rng, PatternEx pattern, int i, int j, vec3f colorLight, vec3f colorDark)
+vec3f patternColor(ref Random rng, PatternEx pattern, int i, int j, vec3f colorLight, vec3f colorDark)
 {
     static vec3f subColor(int i, int j, Pattern pattern, vec3f colorLight, vec3f colorDark)
     {

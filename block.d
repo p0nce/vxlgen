@@ -1,6 +1,6 @@
 module block;
 
-import vector;
+import gfm.math.vector;
 
 struct Block
 {

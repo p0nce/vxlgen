@@ -1,18 +1,18 @@
 module grid;
 
-import vector;
+import gfm.math.vector;
 import std.math;
 import cell;
 import aosmap;
 import randutils;
-import box;
+import gfm.math.box;
 
 interface ICellStructure
 {    
-    void buildCells(ref SimpleRng rng, Grid grid);
+    void buildCells(ref Random rng, Grid grid);
 
     vec3i getCellPosition();
-    void buildBlocks(ref SimpleRng rng, Grid grid, vec3i base, AOSMap map);
+    void buildBlocks(ref Random rng, Grid grid, vec3i base, AOSMap map);
 }
 
 // grid of cells
@@ -146,9 +146,9 @@ class Grid
 
     bool canBuildRoom(box3i pos)
     {
-        for (int x = pos.a.x; x < pos.b.x; ++x)
-            for (int y = pos.a.y; y < pos.b.y; ++y)
-                for (int z = pos.a.z; z < pos.b.z; ++z)
+        for (int x = pos.min.x; x < pos.max.x; ++x)
+            for (int y = pos.min.y; y < pos.max.y; ++y)
+                for (int z = pos.min.z; z < pos.max.z; ++z)
                 {
                     CellType type = cell(x, y, z).type;
                     if (!availableForRoom(type))
@@ -243,36 +243,36 @@ class Grid
 
     void clearArea(box3i pos)
     {
-        for (int x = pos.a.x; x < pos.b.x; ++x)
-            for (int y = pos.a.y; y < pos.b.y; ++y)
-                for (int z = pos.a.z; z < pos.b.z; ++z)
+        for (int x = pos.min.x; x < pos.max.x; ++x)
+            for (int y = pos.min.y; y < pos.max.y; ++y)
+                for (int z = pos.min.z; z < pos.max.z; ++z)
                 {     
                     vec3i posi = vec3i(x, y, z);
-                    cell(posi).type = (z == pos.a.z) ? CellType.ROOM_FLOOR : CellType.AIR;
+                    cell(posi).type = (z == pos.min.z) ? CellType.ROOM_FLOOR : CellType.AIR;
 
                     // balcony for floor
-                    if (z == pos.a.z && z > 1)
+                    if (z == pos.min.z && z > 1)
                         cell(posi).balcony = BalconyType.SIMPLE;
 
                     // ensure floor
-                    if (z == pos.a.z)
+                    if (z == pos.min.z)
                         cell(posi).hasFloor = true;
 
                     // ensure space                    
-                    if (x + 1 < pos.b.x)
+                    if (x + 1 < pos.max.x)
                         connectWith(posi, vec3i(1, 0, 0));
 
-                    if (y + 1 < pos.b.y)
+                    if (y + 1 < pos.max.y)
                         connectWith(posi, vec3i(0, 1, 0));
 
-                    if (z + 1 < pos.b.z)
+                    if (z + 1 < pos.max.z)
                         connectWith(posi, vec3i(0, 0, 1));
                 }
 
         // balcony
-        for (int z = pos.a.z + 1; z < pos.b.z; ++z)
-            for (int x = pos.a.x - 1; x < pos.b.x + 1; ++x)
-                for (int y = pos.a.y - 1; y < pos.b.y + 1; ++y)
+        for (int z = pos.min.z + 1; z < pos.max.z; ++z)
+            for (int x = pos.min.x - 1; x < pos.max.x + 1; ++x)
+                for (int y = pos.min.y - 1; y < pos.max.y + 1; ++y)
                     if (contains(x, y, z))
                     {
                         Cell* c = &cell(x, y, z);

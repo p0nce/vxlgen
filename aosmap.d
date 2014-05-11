@@ -6,16 +6,16 @@ import std.file;
 import area;
 import block;
 import randutils;
-import box;
-import vector;
-import funcs;
+import gfm.math.box;
+import gfm.math.vector;
+import gfm.math.funcs;
 
 enum GROUND_LEVEL = 1;
 enum WATER_LEVEL = 0;
 
 interface IBlockStructure
 {
-    void buildBlocks(ref SimpleRng rng, AOSMap map);
+    void buildBlocks(ref Random rng, AOSMap map);
 }
 
 final class AOSMap
@@ -125,7 +125,7 @@ public:
 
                     if (z == MAP_Z || 0)
                     {
-                        ; // in this case, the bottom colors of this span are empty, because we'l emit as top colors
+                        // in this case, the bottom colors of this span are empty, because we'll emit as top colors
                     }
                     else {
                         // otherwise, these are real bottom colors so we can write them
@@ -203,9 +203,9 @@ public:
 
     void clearBox(box3i b)
     {
-        for (int x = b.a.x; x < b.b.x; ++x)
-            for (int y = b.a.y; y < b.b.y; ++y)
-                for (int z = b.a.z; z < b.b.z; ++z)
+        for (int x = b.min.x; x < b.max.x; ++x)
+            for (int y = b.min.y; y < b.max.y; ++y)
+                for (int z = b.min.z; z < b.max.z; ++z)
                     block(x, y, z).empty();
     }
 

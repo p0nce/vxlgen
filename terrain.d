@@ -3,12 +3,12 @@ module terrain;
 import std.stdio;
 import std.math;
 
-import funcs;
+import gfm.math.funcs;
 import block;
-import vector;
+import gfm.math.vector;
 import aosmap;
 import randutils;
-import simplexnoise;
+import gfm.math.simplexnoise;
 
 final class Tree : IBlockStructure
 {
@@ -28,7 +28,7 @@ public:
         this.conifere = conifere;
     }
 
-    void buildBlocks(ref SimpleRng rng, AOSMap map)
+    void buildBlocks(ref Random rng, AOSMap map)
     {
         int trunkSize = height / 2;
         if (trunkSize > 3)
@@ -72,7 +72,7 @@ public:
         {
             double t = (i - trunkSize) / cast(double)(height - 1 - trunkSize);
             t = clamp(t, 0.0, 1.0);
-            double radius = 1.4 * mix(maxRadius, minRadius, t ^^ skewNess);
+            double radius = 1.4 * lerp(maxRadius, minRadius, t ^^ skewNess);
             int iradius = cast(int)(radius) + 1;
             for (int x = -iradius; x <= iradius; ++x)
                 for (int y = -iradius; y <= iradius; ++y)
@@ -98,21 +98,21 @@ public:
     Tree[] trees;
     vec2i mapDim;
 
-    this(vec2i mapDim, ref SimpleRng rng)
+    this(vec2i mapDim, ref Random rng)
     {
         this.mapDim = mapDim;
         makeHeightMap(rng);
         makeVegetation(rng);
     }
 
-    void makeHeightMap(ref SimpleRng rng)
+    void makeHeightMap(ref Random rng)
     {
         writefln("Make height map...");
         int NUM_OCT = 8;
-        SimplexNoise[] noises = new SimplexNoise[NUM_OCT];
+        SimplexNoise!Random[] noises = new SimplexNoise!Random[NUM_OCT];
         for (int oct = 0; oct < NUM_OCT; ++oct)
         {
-            noises[oct] = new SimplexNoise(rng);        
+            noises[oct] = new SimplexNoise!Random(rng);        
         }
 
         height.length = mapDim.x * mapDim.y;
@@ -145,20 +145,20 @@ public:
 
                 double distanceToCenter = vec2f(x, y).distanceTo(vec2f(255,255));
                 double heightIdeal = 7;
-                z = mix(z, heightIdeal, clamp!double(2 - distanceToCenter * 0.012, 0, 1));
+                z = lerp(z, heightIdeal, clamp!double(2 - distanceToCenter * 0.012, 0, 1));
                 height[y * mapDim.x + x] = z;          
             }
         }
     }
 
-    void makeVegetation(ref SimpleRng rng)
+    void makeVegetation(ref Random rng)
     {
         writefln("Make vegetation layer...");
         int NUM_OCT = 4;
-        SimplexNoise[] noises = new SimplexNoise[NUM_OCT];
+        SimplexNoise!Random[] noises = new SimplexNoise!Random[NUM_OCT];
         for (int oct = 0; oct < NUM_OCT; ++oct)
         {
-            noises[oct] = new SimplexNoise(rng);        
+            noises[oct] = new SimplexNoise!Random(rng);        
         }
 
         vegetation.length = mapDim.x * mapDim.y;
@@ -186,7 +186,7 @@ public:
 
                 double distanceToCenter = vec2f(x, y).distanceTo(vec2f(255, 255));
                 double vegIdeal = 0;
-                veg = mix(veg, vegIdeal, clamp!double(2 - distanceToCenter * 0.012, 0, 1));
+                veg = lerp(veg, vegIdeal, clamp!double(2 - distanceToCenter * 0.012, 0, 1));
 
                 vegetation[y * mapDim.x + x] = clamp(veg, 0.0, 1.0);
             }
@@ -213,7 +213,7 @@ public:
                         vec3f yellow = vec3f(175, 171, 3) / 255.0f;
                         vec3f darkGreen = vec3f(54, 103, 37) / 255.0f;
                         
-                        trunkColor = mix(trunkColor, vec3f(60, 0, 17) / 255.0f, randUniform(rng));                        
+                        trunkColor = lerp(trunkColor, vec3f(60, 0, 17) / 255.0f, randUniform(rng));                        
 
                         float a = randUniform(rng) + 0.1f;
                         float b = randUniform(rng);
@@ -228,8 +228,8 @@ public:
                         {
                             vec3f white = vec3f(1,1,1);
                             float t = clamp((h - 40.0f) / (48.0f - 32.0f), 0.0f, 1.0f);
-                            trunkColor = mix(trunkColor, white, t);
-                            foliageColor = mix(foliageColor, white, t);
+                            trunkColor = lerp(trunkColor, white, t);
+                            foliageColor = lerp(foliageColor, white, t);
                         }
 
                         trees ~= new Tree(vec3i(x, y, h + 1), height, foliageColor, trunkColor, 0);
@@ -248,7 +248,7 @@ public:
         }
     }
 
-    void buildBlocks(ref SimpleRng rng, AOSMap map)
+    void buildBlocks(ref Random rng, AOSMap map)
     {
         writefln("Render terrain...");
         // render height
@@ -274,7 +274,7 @@ public:
                         vec3f lightBlue = vec3f(90 / 255.0f, 148 / 255.0f, 237 / 255.0f);
                         vec3f darkBlue = vec3f(32, 38, 119) / 255.0f;
                         float t = clamp(-(z-0.5f) * 0.1f, 0.0f, 1.0f);
-                        color = mix(lightBlue, darkBlue, t);
+                        color = lerp(lightBlue, darkBlue, t);
                     }
                     else if (k == 1)
                     {
@@ -292,7 +292,7 @@ public:
                     {
                         vec3f green = vec3f(168 / 255.0f, 194 / 255.0f, 75 / 255.0f);
                         vec3f marron = vec3f(118 / 255.0f, 97 / 255.0f, 56 / 255.0f);
-                        color = mix(green, marron, (k - 2.0f) / (16.0f - 2.0f));
+                        color = lerp(green, marron, (k - 2.0f) / (16.0f - 2.0f));
                         color += randomPerturbation(rng) * 0.025f;
                     }
                     else if (k < 32)
@@ -300,14 +300,14 @@ public:
                         vec3f marron = vec3f(118 / 255.0f, 97 / 255.0f, 56 / 255.0f);
                         vec3f grey = vec3f(0.6f, 0.6f, 0.6f);
                         float t = (k - 16.0f) / (32.0f - 16.0f);
-                        color = mix(marron, grey, (k - 16.0f) / (32.0f - 16.0f));
+                        color = lerp(marron, grey, (k - 16.0f) / (32.0f - 16.0f));
                         color += randomPerturbation(rng) * (0.02f - t * 0.01f);
                     }
                     else if (k < 48)
                     {
                         vec3f grey = vec3f(0.6f, 0.6f, 0.6f);
                         vec3f white = vec3f(1,1,1);
-                        color = mix(grey, white, (k - 32.0f) / (48.0f - 32.0f));
+                        color = lerp(grey, white, (k - 32.0f) / (48.0f - 32.0f));
                         color += randomPerturbation(rng) * 0.01f;
                     }
                     else

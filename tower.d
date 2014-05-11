@@ -3,7 +3,7 @@ module tower;
 import std.math;
 import std.stdio;
 
-import vector;
+import gfm.math.vector;
 import aosmap;
 import randutils;
 import cell;
@@ -11,8 +11,8 @@ import grid;
 import room;
 import pattern;
 import stair;
-import funcs;
-import box;
+import gfm.math.funcs;
+import gfm.math.box;
 
 
 enum MetaStructure
@@ -32,17 +32,17 @@ class Level
 {
 public:
 
-    this(int lvl, ref SimpleRng rng, bool isRoof)
+    this(int lvl, ref Random rng, bool isRoof)
     {
         vec3f color = randomColor(rng);
         this(lvl, rng, color, isRoof);
     }
 
-    this(int lvl, ref SimpleRng rng, vec3f color,  bool isRoof)
+    this(int lvl, ref Random rng, vec3f color,  bool isRoof)
     {
-        groundColorLight = mix!(vec3f, float)( color, vec3f(1,1,1), 0.4f + 0.2f * randUniform(rng));
-        groundColorDark = mix!(vec3f, float)( color, vec3f(0,0,0), 0.4f + 0.2f * randUniform(rng));
-        wallColor = mix!(vec3f, float)(color, vec3f(0.5f,0.5f,0.5f), 0.4f + 0.2f * randUniform(rng));
+        groundColorLight = lerp!(vec3f, float)( color, vec3f(1,1,1), 0.4f + 0.2f * randUniform(rng));
+        groundColorDark = lerp!(vec3f, float)( color, vec3f(0,0,0), 0.4f + 0.2f * randUniform(rng));
+        wallColor = lerp!(vec3f, float)(color, vec3f(0.5f,0.5f,0.5f), 0.4f + 0.2f * randUniform(rng));
 
 
         // lower level very dark
@@ -101,7 +101,7 @@ final class Tower : IBlockStructure
             entranceRoomSize = 5;
     }
 
-    void buildBlocks(ref SimpleRng rng, AOSMap map)
+    void buildBlocks(ref Random rng, AOSMap map)
     {
         Level[] levels;
         for (int l = 0; l < numCells.z - 1; ++l)
@@ -234,7 +234,7 @@ final class Tower : IBlockStructure
                 }
     }
 
-    void ensureEachFloorConnected(ref SimpleRng rng, Grid grid)
+    void ensureEachFloorConnected(ref Random rng, Grid grid)
     {
         writefln("Make levels navigable...");
         vec3i[] stack;
@@ -407,7 +407,7 @@ final class Tower : IBlockStructure
         }
     }
 
-    void removeUninterestingPatterns(ref SimpleRng rng, Grid grid)
+    void removeUninterestingPatterns(ref Random rng, Grid grid)
     {
         while(true)
         {
@@ -436,7 +436,7 @@ final class Tower : IBlockStructure
         }
     }
 
-    Room[] addRooms(ref SimpleRng rng, Grid grid)
+    Room[] addRooms(ref Random rng, Grid grid)
     {      
         Room[] rooms;
         double roomProportion = 0.09;
@@ -511,7 +511,7 @@ final class Tower : IBlockStructure
         return rooms;
     }
 
-    Stair[] addStairs(ref SimpleRng rng, Grid grid, Level[] levels)
+    Stair[] addStairs(ref Random rng, Grid grid, Level[] levels)
     {
         Stair[] stairs;
 
@@ -573,7 +573,7 @@ final class Tower : IBlockStructure
         return stairs;
     }
 
-    void clearCell(ref SimpleRng rng, Grid grid, AOSMap map, vec3i cellPos, Level level)
+    void clearCell(ref Random rng, Grid grid, AOSMap map, vec3i cellPos, Level level)
     {
         vec3i blockPosition = position + cellPos * cellSize;
         int cellX = cellPos.x;
@@ -594,7 +594,7 @@ final class Tower : IBlockStructure
                 }
     }
 
-    void renderCell(ref SimpleRng rng, Grid grid, AOSMap map, vec3i cellPos, Level[] levels)
+    void renderCell(ref Random rng, Grid grid, AOSMap map, vec3i cellPos, Level[] levels)
     {
         vec3i blockPosition = position + cellPos * cellSize;
         int cellX = cellPos.x;
@@ -833,8 +833,8 @@ final class Tower : IBlockStructure
 
         if (isBalcony)
         {
-            vec3f balconyColorLight = mix(grey(levels[lvl].wallColor, 0.4f), vec3f(1), 0.6f);
-            vec3f balconyColorDark = mix(grey(levels[lvl].wallColor, 0.7f), vec3f(0), 0.6f);
+            vec3f balconyColorLight = lerp(grey(levels[lvl].wallColor, 0.4f), vec3f(1), 0.6f);
+            vec3f balconyColorDark = lerp(grey(levels[lvl].wallColor, 0.7f), vec3f(0), 0.6f);
 
             for (int i = 0; i < 5; ++i)
             {
@@ -881,7 +881,7 @@ final class Tower : IBlockStructure
         }
     }
 
-    void buildMetastructure(ref SimpleRng rng, Grid grid)
+    void buildMetastructure(ref Random rng, Grid grid)
     {        
         MetaStructure mt;
 
@@ -920,13 +920,13 @@ final class Tower : IBlockStructure
                 box3i bb;
                 if (randBool(rng))
                 {
-                    bb.a = vec3i(0, y25, 1);
-                    bb.b = vec3i(nx, ny - y25, nz - z4);
+                    bb.min = vec3i(0, y25, 1);
+                    bb.max = vec3i(nx, ny - y25, nz - z4);
                 }
                 else
                 {
-                    bb.a = vec3i(x25, 0, 1);
-                    bb.b = vec3i(nx - x25, ny, nz - z4);
+                    bb.min = vec3i(x25, 0, 1);
+                    bb.max = vec3i(nx - x25, ny, nz - z4);
                 }                
                 grid.clearArea(bb);
                 break;
@@ -936,44 +936,44 @@ final class Tower : IBlockStructure
 
             case MetaStructure.FOUR_PILLARS:
                 box3i bb;
-                bb.a = vec3i(0, y25, 1);
-                bb.b = vec3i(nx, ny - y25, nz - z4);
+                bb.min = vec3i(0, y25, 1);
+                bb.max = vec3i(nx, ny - y25, nz - z4);
                 grid.clearArea(bb);
-                bb.a = vec3i(x25, 0, 1);
-                bb.b = vec3i(nx - x25, ny, nz - z4);
+                bb.min = vec3i(x25, 0, 1);
+                bb.max = vec3i(nx - x25, ny, nz - z4);
                 grid.clearArea(bb);
                 break;
 
             case MetaStructure.CUBE:
                 box3i bb;
-                bb.a = vec3i(x3, 0, z3);
-                bb.b = vec3i(nx - x3, ny, nz - z3);
+                bb.min = vec3i(x3, 0, z3);
+                bb.max = vec3i(nx - x3, ny, nz - z3);
                 grid.clearArea(bb);
-                bb.a = vec3i(0, y3, z3);
-                bb.b = vec3i(nx, ny - y3, nz - z3);
+                bb.min = vec3i(0, y3, z3);
+                bb.max = vec3i(nx, ny - y3, nz - z3);
                 grid.clearArea(bb);
-                bb.a = vec3i(x3, y3, 1);
-                bb.b = vec3i(nx - x3, ny - y3, nz);
+                bb.min = vec3i(x3, y3, 1);
+                bb.max = vec3i(nx - x3, ny - y3, nz);
                 grid.clearArea(bb);
                 break;
 
 
             case MetaStructure.CROSS:
                 box3i bb;
-                bb.a = vec3i(0, 0, 1);
-                bb.b = vec3i(x3, y3, nz);
+                bb.min = vec3i(0, 0, 1);
+                bb.max = vec3i(x3, y3, nz);
                 grid.clearArea(bb);
 
-                bb.a = vec3i(nx - x3, 0, 1);
-                bb.b = vec3i(nx, y3, nz);
+                bb.min = vec3i(nx - x3, 0, 1);
+                bb.max = vec3i(nx, y3, nz);
                 grid.clearArea(bb);
 
-                bb.a = vec3i(nx - x3, ny - y3, 1);
-                bb.b = vec3i(nx, ny, nz);
+                bb.min = vec3i(nx - x3, ny - y3, 1);
+                bb.max = vec3i(nx, ny, nz);
                 grid.clearArea(bb);
 
-                bb.a = vec3i(0, ny - y3, 1);
-                bb.b = vec3i(x3, ny, nz);
+                bb.min = vec3i(0, ny - y3, 1);
+                bb.max = vec3i(x3, ny, nz);
                 grid.clearArea(bb);
                 break;
         }

@@ -3,42 +3,40 @@ module randutils;
 
 import std.random;
 
-public import simplerng;
-import vector, funcs;
+alias Random = Xorshift64;
 
-int dice(ref SimpleRng rng, int min, int max)
+public import gfm.math.simplerng;
+import gfm.math.vector, gfm.math.funcs;
+
+int dice(ref Random rng, int min, int max)
 {
     assert(max > min);
-    int res;
-    res = min + cast(int)(randUniform(rng) * (max - min));
+    int res = uniform(min, max, rng);
     assert(res >= min && res < max);
     return res;
 }
 
-vec3f randomPerturbation(ref SimpleRng rng)
+vec3f randomPerturbation(ref Random rng)
 {
-    return vec3f(rng.getNormal(0, 1), rng.getNormal(0, 1), rng.getNormal(0, 1));
+    return vec3f(rng.randNormal(0, 1), rng.randNormal(0, 1), rng.randNormal(0, 1));
 }
 
-vec3f randomColor(ref SimpleRng rng)
+vec3f randomColor(ref Random rng)
 {
-    return vec3f(rng.getUniform(), rng.getUniform(), rng.getUniform());
+    return vec3f(rng.randUniform(), rng.randUniform(), rng.randUniform());
 }
 
-bool randBool(ref SimpleRng rng)
+bool randBool(ref Random rng)
 {
-    //double x = rng.getUniform();
-    return rng.getUint() & 1;
+    return uniform(0, 2, rng) != 0;
 }
 
-double randUniform(ref SimpleRng rng)
+double randUniform(ref Random rng)
 {
-    auto rnd = Xorshift(rng.seed.x);
-    rng.getUint();
-    return uniform(0.0, 1.0, rnd);    
+    return uniform(0.0, 1.0, rng);    
 }
 
-vec2i randomDirection(ref SimpleRng rng)
+vec2i randomDirection(ref Random rng)
 {
     int dir = dice(rng, 0, 4);
     if (dir == 0)
@@ -78,5 +76,5 @@ vec3i rotate(vec3i v, vec3i direction)
 vec3f grey(vec3f color, float fraction)
 {
     float g = (color.x + color.y + color.z) / 3;
-    return mix(color, vec3f(g, g, g), fraction);
+    return lerp(color, vec3f(g, g, g), fraction);
 }

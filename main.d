@@ -6,8 +6,8 @@ import std.stdio,
        std.string;
 
 import randutils;
-import box;
-import vector;
+import gfm.math.box;
+import gfm.math.vector;
 import aosmap;
 import area;
 import block;
@@ -29,14 +29,14 @@ void usage()
 
 void main(string[] argv)
 {
-    SimpleRng rng = SimpleRng.make();
+    Random rng;
+    uint seed = unpredictableSeed();
+    rng.seed(seed);
 
     // parse arguments
 
     string outputFileVXL = "output.vxl";
     string outputFileTXT = "output.txt";
-
-    ulong seed = rng.seed.x | (cast(ulong)(rng.seed.y) << 32);
 
     for(int i = 1; i < argv.length; ++i)
     {
@@ -50,12 +50,8 @@ void main(string[] argv)
                 usage();
                 return;
             }
-            ulong ul = to!ulong(argv[i]);
-            uint a = ul & 0xffffffff;
-            uint b = (ul >> 32) & 0xffffffff;
-            rng = SimpleRng(vec2ui(a, b));
-            seed = rng.seed.x | (cast(ulong)(rng.seed.y) << 32);
-            assert(seed == ul);
+            uint ul = to!uint(argv[i]);
+            rng.seed(ul);            
         }
         else if (arg == "-o")
         {
@@ -137,8 +133,8 @@ void main(string[] argv)
         f.writefln("  'tower_position': %s,", pythonTuple(towerPos) );
         f.writefln("  'tower_cells': %s,", pythonTuple(numCells) );
         f.writefln("  'cell_size': %s,", pythonTuple(cellSize) );
-        vec3f blueSpawnPos = cast(vec3f)(blueSpawnArea.a + blueSpawnArea.b) / 2.0f;
-        vec3f greenSpawnPos = cast(vec3f)(greenSpawnArea.a + greenSpawnArea.b) / 2.0f;
+        vec3f blueSpawnPos = cast(vec3f)(blueSpawnArea.min + blueSpawnArea.max) / 2.0f;
+        vec3f greenSpawnPos = cast(vec3f)(greenSpawnArea.min + greenSpawnArea.max) / 2.0f;
         blueSpawnPos.z = 63 - 7;
         greenSpawnPos.z = 63 - 7;
 
@@ -156,7 +152,7 @@ void main(string[] argv)
 
 }
 
-void makeTower(ref SimpleRng rng, AOSMap map, vec3i towerPos, vec3i numCells, vec3i cellSize, out box3i blueSpawnArea, out box3i greenSpawnArea)
+void makeTower(ref Random rng, AOSMap map, vec3i towerPos, vec3i numCells, vec3i cellSize, out box3i blueSpawnArea, out box3i greenSpawnArea)
 {
     assert(cellSize == vec3i(4, 4, 6)); // TODO other cell size?
     writefln("*** Build tower...");
@@ -164,11 +160,11 @@ void makeTower(ref SimpleRng rng, AOSMap map, vec3i towerPos, vec3i numCells, ve
     auto tower = new Tower(towerPos, numCells);
     tower.buildBlocks(rng, map);
 
-    blueSpawnArea = box3i(towerPos + tower.blueEntrance.a * cellSize, towerPos + tower.blueEntrance.b * cellSize);
-    greenSpawnArea = box3i(towerPos + tower.greenEntrance.a * cellSize, towerPos + tower.greenEntrance.b * cellSize);
+    blueSpawnArea = box3i(towerPos + tower.blueEntrance.min * cellSize, towerPos + tower.blueEntrance.max * cellSize);
+    greenSpawnArea = box3i(towerPos + tower.greenEntrance.min * cellSize, towerPos + tower.greenEntrance.max * cellSize);
 }
 
-void makeTerrain(ref SimpleRng rng, AOSMap map)
+void makeTerrain(ref Random rng, AOSMap map)
 {
     writefln("*** Generate terrain...");
     auto terrain = new Terrain(vec2i(512, 512), rng);
