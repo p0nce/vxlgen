@@ -748,20 +748,43 @@ final class Tower : IBlockStructure
             if (canSeeInside && grid.canSeeInside(leftCell))
             {
                 // single window
-                if (randUniform(rng) < 0.08)
+                if (randUniform(rng) < 0.16)
                     map.block(x, y + 2, z + 3).empty();
 
                 //  two windows
-                else if (randUniform(rng) < 0.04)
+                else if (randUniform(rng) < 0.08)
                 {
                     map.block(x, y + 1, z + 3).empty();
                     map.block(x, y + 3, z + 3).empty();
                 }
                 //  triple window
-                else if (randUniform(rng) < 0.04)
+                else if (randUniform(rng) < 0.08)
                 {
                     map.block(x, y + 1, z + 3).empty();
                     map.block(x, y + 2, z + 3).empty();
+                    map.block(x, y + 3, z + 3).empty();
+                }
+                // zig-zag window
+                else if (randUniform(rng) < 0.02)
+                {
+                    map.block(x, y + 1, z + 3).empty();
+                    map.block(x, y + 2, z + 2).empty();
+                    map.block(x, y + 3, z + 3).empty();
+                }
+                else if (randUniform(rng) < 0.02)
+                {
+                    map.block(x, y + 1, z + 2).empty();
+                    map.block(x, y + 2, z + 3).empty();
+                    map.block(x, y + 3, z + 2).empty();
+                }
+                // cross
+                else if (randUniform(rng) < 0.01)
+                {
+                    map.block(x, y + 1, z + 1).empty();
+                    map.block(x, y + 3, z + 1).empty();
+                    if (randUniform(rng) < 0.01)
+                        map.block(x, y + 2, z + 2).empty();
+                    map.block(x, y + 1, z + 3).empty();
                     map.block(x, y + 3, z + 3).empty();
                 }
     /*            else if (randUniform(rng) < 0.04)
@@ -796,29 +819,46 @@ final class Tower : IBlockStructure
             if (canSeeInside && grid.canSeeInside(topCell))
             {
                 // single window
-                if (randUniform(rng) < 0.08)
+                if (randUniform(rng) < 0.16)
                     map.block(x + 2, y, z + 3).empty();
 
                 //  two windows
-                else if (randUniform(rng) < 0.04)
+                else if (randUniform(rng) < 0.08)
                 {
                     map.block(x + 1, y, z + 3).empty();
                     map.block(x + 3, y, z + 3).empty();
                 }
                 //  triple window
-                else if (randUniform(rng) < 0.04)
+                else if (randUniform(rng) < 0.08)
                 {
                     map.block(x + 1, y, z + 3).empty();
                     map.block(x + 2, y, z + 3).empty();
                     map.block(x + 3, y, z + 3).empty();
                 }
-         /*       else if (randUniform(rng) < 0.04)
+                // zig-zag window
+                else if (randUniform(rng) < 0.02)
                 {
-                    // door
-                    map.block(x + 2, y, z + 3).empty();
+                    map.block(x + 1, y, z + 3).empty();
                     map.block(x + 2, y, z + 2).empty();
-                    map.block(x + 2, y, z + 1).empty();
-                }*/
+                    map.block(x + 3, y, z + 3).empty();
+                }
+                else if (randUniform(rng) < 0.02)
+                {
+                    map.block(x+1, y, z + 2).empty();
+                    map.block(x+2, y, z + 3).empty();
+                    map.block(x+3, y, z + 2).empty();
+                }
+                // cross
+                else if (randUniform(rng) < 0.01)
+                {
+                    map.block(x+1, y, z + 1).empty();
+                    map.block(x+3, y, z + 1).empty();
+                    if (randUniform(rng) < 0.01)
+                        map.block(x+2, y, z + 2).empty();
+                    map.block(x+1, y, z + 3).empty();
+                    map.block(x+3, y, z + 3).empty();
+                }
+ 
             }
         }
 
