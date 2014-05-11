@@ -43,8 +43,9 @@ final class Room : ICellStructure
 
 
                     // ensure floor
-                    /*if (z == pos.min.z)
-                        grid.cell(posi).hasFloor = true;*/
+                    if (isEntrance)
+                        if (z == pos.min.z)
+                            grid.cell(posi).hasFloor = true;
 
                     // ensure space                    
                     if (x + 1 < pos.max.x)
