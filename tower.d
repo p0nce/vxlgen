@@ -778,7 +778,7 @@ final class Tower : IBlockStructure
                     map.block(x, y + 3, z + 2).empty();
                 }
                 // cross
-                else if (randUniform(rng) < 0.01)
+                else if (randUniform(rng) < 0.002)
                 {
                     map.block(x, y + 1, z + 1).empty();
                     map.block(x, y + 3, z + 1).empty();
@@ -849,7 +849,7 @@ final class Tower : IBlockStructure
                     map.block(x+3, y, z + 2).empty();
                 }
                 // cross
-                else if (randUniform(rng) < 0.01)
+                else if (randUniform(rng) < 0.002)
                 {
                     map.block(x+1, y, z + 1).empty();
                     map.block(x+3, y, z + 1).empty();
@@ -942,6 +942,8 @@ final class Tower : IBlockStructure
         int y3 = (grid.numCells.y + 1) / 3;
         int x25 = (grid.numCells.x * 2 + 2) / 5;
         int y25 = (grid.numCells.y * 2 + 2) / 5;
+        int x37 = (grid.numCells.x * 3 + 3) / 7;
+        int y37 = (grid.numCells.y * 3 + 3) / 7;
         int x4 = (grid.numCells.x + 2) / 4;
         int y4 = (grid.numCells.y + 2) / 4;
         int z3 = (grid.numCells.z + 1) / 3;
@@ -976,11 +978,11 @@ final class Tower : IBlockStructure
 
             case MetaStructure.FOUR_PILLARS:
                 box3i bb;
-                bb.min = vec3i(0, y25, 1);
-                bb.max = vec3i(nx, ny - y25, nz - z4);
+                bb.min = vec3i(0, y37, 1);
+                bb.max = vec3i(nx, ny - y37, nz - z4);
                 grid.clearArea(bb);
-                bb.min = vec3i(x25, 0, 1);
-                bb.max = vec3i(nx - x25, ny, nz - z4);
+                bb.min = vec3i(x37, 0, 1);
+                bb.max = vec3i(nx - x37, ny, nz - z4);
                 grid.clearArea(bb);
                 break;
 
