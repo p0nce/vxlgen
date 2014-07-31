@@ -11,6 +11,6 @@
 
     "dependencies": 
     {
-        "gfm:math": "~master",
+        "gfm:math": "==1.1.7",
     }
 }
