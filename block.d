@@ -17,7 +17,7 @@ struct Block
         setf(fr, fg, fb);
     }
 
-    this(ubyte pr, ubyte pg, ubyte pb)
+    this(int pr, int pg, int pb)
     {
         seti(pr, pg, pb);
     }
@@ -37,11 +37,11 @@ struct Block
         setf(v.x, v.y, v.z);
     }
 
-    void seti(ubyte pr, ubyte pg, ubyte pb)
+    void seti(int pr, int pg, int pb)
     { 
-        r = pr;
-        g = pg;
-        b = pb;
+        r = cast(ubyte)pr;
+        g = cast(ubyte)pg;
+        b = cast(ubyte)pb;
         isSolid = 1;
     }
 

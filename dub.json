@@ -11,6 +11,7 @@
 
     "dependencies": 
     {
+	    "colorize": "==0.2.1",
         "gfm:math": "==1.1.7",
     }
 }

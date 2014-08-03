@@ -26,7 +26,7 @@ struct PatternEx
     float noiseAmount;
 }
 
-vec3f patternColor(ref Random rng, PatternEx pattern, int i, int j, vec3f colorLight, vec3f colorDark)
+vec3f patternColor(ref RNG rng, PatternEx pattern, int i, int j, vec3f colorLight, vec3f colorDark)
 {
     static vec3f subColor(int i, int j, Pattern pattern, vec3f colorLight, vec3f colorDark)
     {

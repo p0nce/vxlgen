@@ -5,29 +5,35 @@ import std.stdio,
        std.conv,
        std.string;
 
+import dungeon;
 import randutils;
 import gfm.math.box;
 import gfm.math.vector;
 import aosmap;
 import area;
 import block;
+import colorize : fg, cwritefln;
+import colorize.colorize : colorize;
 
 enum MAJOR_VERSION = 0;
 enum MINOR_VERSION = 2;
 
+
+
+
 void usage()
 {
-    writefln("vxlgen v%d.%d, GFM generation tool.", MAJOR_VERSION, MINOR_VERSION);
-    writefln("http://www.gamesfrommars.fr");
-    writefln("usage: vxlgen [-seed n] [-o map-name] [-help]");
-    writefln("    -seed: select a seed");
-    writefln("    -o   : name of the output file (.txt and .vxl extensions added)");
-    writefln("    -help: show this help");
+    cwritefln("vxlgen v%d.%d, GFM generation tool.", MAJOR_VERSION, MINOR_VERSION);
+    cwritefln("http://www.gamesfrommars.fr");
+    cwritefln("usage: vxlgen [-seed n] [-o map-name] [-help]");
+    cwritefln("    -seed: select a seed");
+    cwritefln("    -o   : name of the output file (.txt and .vxl extensions added)");
+    cwritefln("    -help: show this help");
 }
 
 void main(string[] argv)
 {
-    Random rng;
+    RNG rng;
     uint seed = unpredictableSeed();
     rng.seed(seed);
 
@@ -44,7 +50,7 @@ void main(string[] argv)
             i = i + 1;
             if (i == argv.length)
             {
-                writefln("error: expected a number.");
+                cwritefln("error: expected a number.");
                 usage();
                 return;
             }
@@ -56,7 +62,7 @@ void main(string[] argv)
             i = i + 1;
             if (i == argv.length)
             {
-                writefln("error: expected a filename.");
+                cwritefln("error: expected a filename.");
                 usage();
                 return;
             }
@@ -70,7 +76,7 @@ void main(string[] argv)
         }
         else
         {
-            writefln("error: unknown argument %s", arg);
+            cwritefln("error: unknown argument %s", arg);
             usage();
             return;
         }
@@ -78,14 +84,16 @@ void main(string[] argv)
 
     auto map = new AOSMap();    
     
-    writefln("*** Generating seed %s...", seed);
+    cwritefln( colorize("*** Generating seed %s...", fg.light_green), seed);
+    auto dungeon = new Dungeon(rng);
 
+    cwritefln( colorize("*** Rendering dungeon...", fg.light_green));
+    dungeon.render(rng, map);
 
-
-    writefln("*** Saving map to %s...", outputFileVXL);
+    cwritefln( colorize("*** Saving map to %s...", fg.light_green), outputFileVXL);
     map.writeMap(outputFileVXL);
 
-    writefln("*** Saving meta-data to %s...", outputFileTXT);
+    cwritefln( colorize("*** Saving meta-data to %s...", fg.light_green), outputFileTXT);
 
     void writeTXT(string outputFileTXT, ulong seed)
     {
@@ -117,4 +125,6 @@ string pythonTuple(vec3f v)
 {
     return format("(%s, %s, %s)", v.x, v.y, v.z);
 }
+
+
 

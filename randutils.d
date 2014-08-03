@@ -1,14 +1,14 @@
 module randutils;
 
 
-import std.random;
+private import std.random;
 
-alias Random = Xorshift64;
+alias RNG = Xorshift64;
 
 public import gfm.math.simplerng;
 import gfm.math.vector, gfm.math.funcs;
 
-int dice(ref Random rng, int min, int max)
+int randInt(ref RNG rng, int min, int max)
 {
     assert(max > min);
     int res = uniform(min, max, rng);
@@ -16,22 +16,22 @@ int dice(ref Random rng, int min, int max)
     return res;
 }
 
-vec3f randomPerturbation(ref Random rng)
+vec3f randomPerturbation(ref RNG rng)
 {
     return vec3f(rng.randNormal(0, 1), rng.randNormal(0, 1), rng.randNormal(0, 1));
 }
 
-vec3f randomColor(ref Random rng)
+vec3f randomColor(ref RNG rng)
 {
     return vec3f(rng.randUniform(), rng.randUniform(), rng.randUniform());
 }
 
-bool randBool(ref Random rng)
+bool randBool(ref RNG rng)
 {
     return uniform(0, 2, rng) != 0;
 }
 
-double randUniform(ref Random rng)
+double randUniform(ref RNG rng)
 {
     return uniform(0.0, 1.0, rng);    
 }
