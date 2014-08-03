@@ -11,7 +11,8 @@
 
     "dependencies": 
     {
-	    "colorize": "==0.2.1",
+	    "colorize": "==1.0.2",
         "gfm:math": "==1.1.7",
+        "vox-d": "==0.0.1"
     }
 }

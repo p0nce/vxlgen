@@ -1,22 +1,25 @@
 module dungeon;
 
 import randutils;
+import doodad;
 import gfm.math;
 import aosmap;
 import block;
-import colorize : fg, cwritefln;
-import colorize.colorize : colorize;
+import colorize;
 import room;
 
 class Dungeon
 {
     Room[] rooms;
+    Doodad[] doodads;
 
     this(ref RNG rng)
     {
-        int NUM_ROOMS = 1000;
-        cwritefln( colorize("*** Create %d rooms", fg.light_green), NUM_ROOMS);
+        doodads = loadAllDoodads();
+        cwritefln( color("*** Loaded %s doodads", fg.light_green), doodads.length);
 
+        int NUM_ROOMS = 1000;
+        
         for (int i = 0; i < NUM_ROOMS; ++i)
         {
             int width, height, depth;
@@ -57,14 +60,14 @@ class Dungeon
             bool intersectsOther = false;
             for (int j = 0; j < i; ++j)
             {
-                if (rooms[j].box().intersect(candidate).volume() != 0)
+                if (rooms[j].box().intersects(candidate))
                     intersectsOther = true;
                 break;                
             }
             if (!intersectsOther)
                 rooms ~= new Room(position, dimension);
         }
-        cwritedln("%s rooms built", rooms.length);
+        cwritefln( color("*** Created %s rooms", fg.light_green), rooms.length);
     }
 
 

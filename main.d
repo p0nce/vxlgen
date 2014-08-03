@@ -12,8 +12,7 @@ import gfm.math.vector;
 import aosmap;
 import area;
 import block;
-import colorize : fg, cwritefln;
-import colorize.colorize : colorize;
+import colorize;
 
 enum MAJOR_VERSION = 0;
 enum MINOR_VERSION = 2;
@@ -84,16 +83,16 @@ void main(string[] argv)
 
     auto map = new AOSMap();    
     
-    cwritefln( colorize("*** Generating seed %s...", fg.light_green), seed);
+    cwritefln( color("*** Generating seed %s...", fg.light_green), seed);
     auto dungeon = new Dungeon(rng);
 
-    cwritefln( colorize("*** Rendering dungeon...", fg.light_green));
+    cwritefln( color("*** Rendering dungeon...", fg.light_green));
     dungeon.render(rng, map);
 
-    cwritefln( colorize("*** Saving map to %s...", fg.light_green), outputFileVXL);
+    cwritefln( color("*** Saving map to %s...", fg.light_green), outputFileVXL);
     map.writeMap(outputFileVXL);
 
-    cwritefln( colorize("*** Saving meta-data to %s...", fg.light_green), outputFileTXT);
+    cwritefln( color("*** Saving meta-data to %s...", fg.light_green), outputFileTXT);
 
     void writeTXT(string outputFileTXT, ulong seed)
     {
