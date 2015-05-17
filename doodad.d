@@ -24,7 +24,7 @@ private:
 Doodad[] loadAllDoodads()
 {
     Doodad[] result;
-    auto dFiles = filter!`endsWith(a.name,".vox")`(dirEntries(".",SpanMode.depth));
+    auto dFiles = filter!`endsWith(a.name,".vox")`(dirEntries("doodads",SpanMode.depth));
     foreach(d; dFiles)
     {
         result ~= new Doodad(decodeVOX(d));
@@ -94,10 +94,17 @@ public:
                 {
                     vec2i disp = mrot * vec2i(x, y);
                     VoxColor c = _doodad._vox.voxel(x, y, z);
-                    if (isVisible(c))
-                        map.block(_pos.x + disp.x, _pos.y + disp.y, _pos.z + z).seti(c.r, c.g, c.b);
-                    else
-                        map.block(_pos.x + disp.x, _pos.y + disp.y, _pos.z + z).empty();
+
+                    int px = _pos.x + disp.x;
+                    int py = _pos.y + disp.y;
+                    int pz = _pos.z + z;
+                    if (map.contains(px, py, pz))
+                    {
+                        if (isVisible(c))
+                                map.block(px, py, pz).seti(c.r, c.g, c.b);                    
+                        else
+                            map.block(px, py, pz).empty();
+                    }
                 }
     }
 

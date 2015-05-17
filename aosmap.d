@@ -23,7 +23,7 @@ final class AOSMap
 public:
 
     this()
-    {   
+    {
         _blocks.length = 512 * 512 * 64;
     }
 
@@ -51,7 +51,7 @@ public:
     ref Block block(int x, int y, int z)
     {
         assert(contains(x, y, z));
-        z = 63 - z;       
+        z = 63 - z;
         int index = z + y * 64 + x * 64 * 512;
         return _blocks[index];
     }
@@ -71,7 +71,7 @@ public:
 
     ubyte[] getBytes()
     {
-        ubyte[] res;        
+        ubyte[] res;
 
         int i,j,k;
 
@@ -129,7 +129,7 @@ public:
                     }
                     else {
                         // otherwise, these are real bottom colors so we can write them
-                        while (is_surface(i,j,k))  
+                        while (is_surface(i,j,k))
                             ++k;
                     }
                     bottom_colors_end = k;
@@ -142,10 +142,10 @@ public:
 
                     void outputByte(ubyte c)
                     {
-                        res ~= c;                        
+                        res ~= c;
                     }
 
-                    if (k == MAP_Z)                        
+                    if (k == MAP_Z)
                         outputByte(0);
                     else
                         outputByte(cast(ubyte)(colors+1));
@@ -160,7 +160,7 @@ public:
 
                         // assume color is ARGB native, but endianness is unknown
 
-                        ubyte c[4];
+                        ubyte[4] c;
                         c[0] = b.b;
                         c[1] = b.g;
                         c[2] = b.r;
@@ -180,7 +180,7 @@ public:
                         write_color(i, j, top_colors_start + z);
                     for (z=0; z < bottom_colors_len; ++z)
                         write_color(i, j, bottom_colors_start + z);
-                }  
+                }
             }
         }
         return res;

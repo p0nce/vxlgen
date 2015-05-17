@@ -84,11 +84,3 @@ private:
 }
 
 
-IArea areaUnion(IArea a, IArea b)
-{
-    vec3i[] blocksAB = a.enumerateIndices() ~ b.enumerateIndices();
-
-    // create sorted array
-    return new ListArea(array(uniq(blocksAB.sort)));
-}
-

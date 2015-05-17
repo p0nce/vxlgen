@@ -6,11 +6,11 @@ import gfm.math;
 import aosmap;
 import block;
 import colorize;
-import room;
+//import room;
 
 class Dungeon
 {
-    Room[] rooms;
+//   Room[] rooms;
     Doodad[] doodads;
 
     DoodadInstance[] objects;
@@ -20,17 +20,17 @@ class Dungeon
         doodads = loadAllDoodads();
         cwritefln( color("*** Loaded %s doodads", fg.light_green), doodads.length);
 
-        foreach(i; 0..10000)
+        foreach(i; 0..100)
         {
-            vec3i position = vec3i( randInt(rng, 10, 500), randInt(rng, 10, 500), randInt(rng, 1, 50));
-            objects ~= new DoodadInstance(doodads[randInt(rng, 0, 2)], position, randInt(rng, 0, 4));
+            vec3i position = vec3i( randInt(rng, 10, 500), randInt(rng, 10, 500), randInt(rng, 1, 2));
+            objects ~= new DoodadInstance(doodads[randInt(rng, 0, cast(int)doodads.length)], position, randInt(rng, 0, 4));
         }
     }
 
 
     void render(ref RNG rng, AOSMap map)
-    {        
-        //map.fill(map.wholeWorld, Block(149, 193, 21));
+    {
+   //     map.fill(map.wholeWorld, Block(149, 193, 21));
 
         map.clearBox(map.worldBox());
         for (int i = 0; i < 512; ++i)
@@ -39,10 +39,10 @@ class Dungeon
                 {
                     map.block(i,j,k) = Block(149, 193, 21);
                 }
-        
-        
+
+
         foreach(di; objects)
-            di.render(map);        
+            di.render(map);
     }
 
 }

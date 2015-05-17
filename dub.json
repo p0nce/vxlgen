@@ -1,5 +1,5 @@
 {
-    "name": "vxlgen",
+    "name": "vxlgen2",
     "homepage": "http://github.com/p0nce/vxlgen/",
     "copyright": "none",
     "license": "public domain",
@@ -9,10 +9,10 @@
     "targetType": "executable",
     "mainSourceFile" : "main.d",
 
-    "dependencies": 
+    "dependencies":
     {
-	    "colorize": "==1.0.2",
-        "gfm:math": "==1.1.7",
+	    "colorize": "~>1.0",
+        "gfm:math": "~>2.2",
         "vox-d": "==0.0.1"
     }
 }
