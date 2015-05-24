@@ -23,7 +23,7 @@ class Dungeon
         foreach(i; 0..100)
         {
             vec3i position = vec3i( randInt(rng, 10, 500), randInt(rng, 10, 500), randInt(rng, 1, 2));
-            objects ~= new DoodadInstance(doodads[randInt(rng, 0, cast(int)doodads.length)], position, randInt(rng, 0, 4));
+            objects ~= new DoodadInstance(doodads[randInt(rng, 0, cast(int)doodads.length)], position);
         }
     }
 
