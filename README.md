@@ -38,3 +38,25 @@ To ensure there is a path from anywhere to anywhere the algorithm works as follo
   - create connections until there is only one colour
 * bury unreachable areas
 * bury dead-ends
+
+
+Screenshots
+===========
+
+- Corridors
+![Roof](screenshots/2.jpg)
+
+- Roof
+![Roof](screenshots/1.jpg)
+
+- Spawn point is inside the building to avoid spawn camping
+![Roof](screenshots/3.jpg)
+
+- Trees and sea
+![Roof](screenshots/5.jpg)
+
+- Rooms
+![Roof](screenshots/6.jpg)
+
+- Up to 10 floors
+![Roof](screenshots/7.jpg)
