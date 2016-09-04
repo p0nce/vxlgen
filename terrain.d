@@ -8,7 +8,7 @@ import block;
 import gfm.math.vector;
 import aosmap;
 import randutils;
-import gfm.math.simplexnoise;
+import simplexnoise;
 
 final class Tree : IBlockStructure
 {
@@ -52,9 +52,9 @@ public:
                     if (map.contains(vec3i(pos.x + x, pos.y + y, pos.z + i)))
                     {
                         Block* bl = &map.block(pos.x + x, pos.y + y, pos.z + i);
-                        bl.r *= 0.7f;
-                        bl.g *= 0.7f;
-                        bl.b *= 0.7f;
+                        bl.r = cast(ubyte)(bl.r * 0.7f);
+                        bl.g = cast(ubyte)(bl.g * 0.7f);
+                        bl.b = cast(ubyte)(bl.b * 0.7f);
                     }
                 }
             }        

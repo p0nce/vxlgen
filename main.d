@@ -9,7 +9,6 @@ import randutils;
 import gfm.math.box;
 import gfm.math.vector;
 import aosmap;
-import area;
 import block;
 import tower;
 import terrain;

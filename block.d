@@ -4,7 +4,7 @@ import gfm.math.vector;
 
 struct Block
 {
-    this(bool solid = false) // empty block
+    this(bool solid) // empty block
     {
         isSolid = solid ? 1 : 0;
         r = 0;

@@ -3,7 +3,6 @@ module aosmap;
 import std.stdio;
 import std.file;
 
-import area;
 import block;
 import randutils;
 import gfm.math.box;
@@ -160,7 +159,7 @@ public:
 
                         // assume color is ARGB native, but endianness is unknown
 
-                        ubyte c[4];
+                        ubyte[4] c;
                         c[0] = b.b;
                         c[1] = b.g;
                         c[2] = b.r;
@@ -184,21 +183,6 @@ public:
             }
         }
         return res;
-    }
-
-    IArea wholeWorld()
-    {
-        return new BoxArea(worldBox());
-    }
-
-    void fill(IArea area, Block b)
-    {
-        vec3i[] ind = area.enumerateIndices();
-
-        foreach (id ; ind)
-        {
-            block(id) = b;
-        }
     }
 
     void clearBox(box3i b)
